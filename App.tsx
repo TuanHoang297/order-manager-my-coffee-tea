@@ -180,8 +180,8 @@ export default function App() {
       <header className="sticky top-0 z-[100] bg-[#0a0404]/95 backdrop-blur-xl border-b border-amber-900/20 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl shadow-amber-500/30 rotate-3">
-              <Store className="text-black" size={24} strokeWidth={2.5} />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden bg-white/5">
+              <img src="/logo.png" alt="Mỳ Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-xl font-black text-amber-500 tracking-tight">MỲ SỮA HẠT</h1>
