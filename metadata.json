@@ -1,0 +1,8 @@
+
+{
+  "name": "Mỳ Coffee & Tea Order Manager",
+  "description": "A specialized order management application for a sidewalk cafe, featuring a festive Lunar New Year theme and automated price conversion for local currency.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
