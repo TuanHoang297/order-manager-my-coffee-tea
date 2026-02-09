@@ -98,6 +98,16 @@ export default function App() {
     setNoteInput('');
   };
 
+  const handleNoteBlur = (id: string) => {
+    saveNote(id);
+  };
+
+  const handleNoteKeyDown = (e: React.KeyboardEvent, id: string) => {
+    if (e.key === 'Enter') {
+      saveNote(id);
+    }
+  };
+
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handlePlaceOrder = async () => {
@@ -410,16 +420,12 @@ export default function App() {
                             type="text"
                             value={noteInput}
                             onChange={(e) => setNoteInput(e.target.value)}
+                            onBlur={() => handleNoteBlur(item.id)}
+                            onKeyDown={(e) => handleNoteKeyDown(e, item.id)}
                             placeholder="Ví dụ: ít đường, nhiều đá..."
                             className="flex-1 bg-black/60 border border-amber-900/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50"
                             autoFocus
                           />
-                          <button
-                            onClick={() => saveNote(item.id)}
-                            className="px-4 py-2 bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black rounded-xl text-sm font-bold shadow-lg shadow-amber-500/30"
-                          >
-                            Lưu
-                          </button>
                         </div>
                       ) : (
                         <button
