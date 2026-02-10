@@ -1,0 +1,12 @@
+Vấn đề hiện tại:
+1. Đơn 1 không kêu - vì previousOrderIds.size === 0
+2. Khi "Bắt đầu pha chế" có kêu - vì Firebase có thể xóa/thêm lại đơn
+
+Giải pháp: Dùng timestamp để phân biệt đơn mới (< 5s) vs đơn cũ
+
+Thay đổi cần làm trong App.tsx:
+- Đổi previousOrderIdsRef thành knownOrderIdsRef
+- Check đơn mới bằng: timestamp < 5s VÀ chưa có trong knownOrderIdsRef
+- Luôn thêm tất cả đơn active vào knownOrderIdsRef
+
+Bạn có muốn tôi tạo file mới với code đã sửa không?

@@ -96,7 +96,7 @@ export default function App() {
         const activeOrders = firebaseOrders.filter(o => o.status !== 'completed');
         const previousActiveCount = orders.filter(o => o.status !== 'completed').length;
         
-        if (activeOrders.length > previousActiveCount && previousActiveCount > 0) {
+        if (activeOrders.length > previousActiveCount) {
           playNotificationSound();
           
           // Show browser notification if permission granted
