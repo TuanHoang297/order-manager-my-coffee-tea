@@ -39,7 +39,7 @@ export default function App() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState('');
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
-  const [adminTab, setAdminTab] = useState<'active' | 'completed'>('active');
+  const [adminTab, setAdminTab] = useState<'active' | 'completed' | 'revenue'>('active');
   const [addingToOrderId, setAddingToOrderId] = useState<string | null>(null);
   const [additionalCart, setAdditionalCart] = useState<OrderItem[]>([]);
   const [, setTimeUpdate] = useState(0);
@@ -447,6 +447,49 @@ export default function App() {
     return `${diffDays} ngày trước`;
   };
 
+  const getRevenueStats = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeekStart = new Date(today);
+    thisWeekStart.setDate(today.getDate() - today.getDay());
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const completedOrders = orders.filter(o => o.status === 'completed');
+
+    const todayOrders = completedOrders.filter(o => o.timestamp >= today);
+    const weekOrders = completedOrders.filter(o => o.timestamp >= thisWeekStart);
+    const monthOrders = completedOrders.filter(o => o.timestamp >= thisMonthStart);
+
+    const todayRevenue = todayOrders.reduce((sum, o) => sum + o.total, 0);
+    const weekRevenue = weekOrders.reduce((sum, o) => sum + o.total, 0);
+    const monthRevenue = monthOrders.reduce((sum, o) => sum + o.total, 0);
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + o.total, 0);
+
+    // Top selling items
+    const itemCounts: { [key: string]: { name: string; count: number; revenue: number } } = {};
+    completedOrders.forEach(order => {
+      order.items.forEach(item => {
+        if (!itemCounts[item.id]) {
+          itemCounts[item.id] = { name: item.name, count: 0, revenue: 0 };
+        }
+        itemCounts[item.id].count += item.quantity;
+        itemCounts[item.id].revenue += item.price * item.quantity;
+      });
+    });
+
+    const topItems = Object.values(itemCounts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      today: { orders: todayOrders.length, revenue: todayRevenue },
+      week: { orders: weekOrders.length, revenue: weekRevenue },
+      month: { orders: monthOrders.length, revenue: monthRevenue },
+      total: { orders: completedOrders.length, revenue: totalRevenue },
+      topItems
+    };
+  };
+
   const isOrderDelayed = (timestamp: Date, status: Order['status']) => {
     if (status === 'completed') return false;
     
@@ -625,7 +668,7 @@ export default function App() {
                     </>
                   )}
                   <span className="relative flex items-center justify-center gap-2">
-                    🔥 Cần pha chế
+                    🔥 Cần pha
                     <span className={`px-2 py-0.5 rounded-lg text-xs font-black ${
                       adminTab === 'active' 
                         ? 'bg-white/20 text-white' 
@@ -660,10 +703,87 @@ export default function App() {
                     </span>
                   </span>
                 </button>
+                <button
+                  onClick={() => setAdminTab('revenue')}
+                  className={`relative flex-1 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    adminTab === 'revenue'
+                      ? 'text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {adminTab === 'revenue' && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl shadow-xl shadow-cyan-500/30"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-xl blur-lg opacity-50"></div>
+                    </>
+                  )}
+                  <span className="relative">💰 Doanh thu</span>
+                </button>
               </div>
             </div>
 
             <div className="space-y-3">
+              {adminTab === 'revenue' ? (
+                <div className="space-y-4 animate-in fade-in duration-500">
+                  {(() => {
+                    const stats = getRevenueStats();
+                    return (
+                      <>
+                        {/* Revenue Cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-gradient-to-br from-cyan-900/30 to-cyan-950/30 border border-cyan-500/40 rounded-2xl p-4 shadow-xl">
+                            <p className="text-cyan-400 text-xs font-bold mb-1">Hôm nay</p>
+                            <p className="text-2xl font-black text-white mb-0.5">{(stats.today.revenue / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-slate-400 font-semibold">{stats.today.orders} đơn</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-emerald-900/30 to-emerald-950/30 border border-emerald-500/40 rounded-2xl p-4 shadow-xl">
+                            <p className="text-emerald-400 text-xs font-bold mb-1">Tuần này</p>
+                            <p className="text-2xl font-black text-white mb-0.5">{(stats.week.revenue / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-slate-400 font-semibold">{stats.week.orders} đơn</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-purple-900/30 to-purple-950/30 border border-purple-500/40 rounded-2xl p-4 shadow-xl">
+                            <p className="text-purple-400 text-xs font-bold mb-1">Tháng này</p>
+                            <p className="text-2xl font-black text-white mb-0.5">{(stats.month.revenue / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-slate-400 font-semibold">{stats.month.orders} đơn</p>
+                          </div>
+                          <div className="bg-gradient-to-br from-orange-900/30 to-orange-950/30 border border-orange-500/40 rounded-2xl p-4 shadow-xl">
+                            <p className="text-orange-400 text-xs font-bold mb-1">Tổng cộng</p>
+                            <p className="text-2xl font-black text-white mb-0.5">{(stats.total.revenue / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-slate-400 font-semibold">{stats.total.orders} đơn</p>
+                          </div>
+                        </div>
+
+                        {/* Top Selling Items */}
+                        <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-5 shadow-xl">
+                          <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
+                            <Flame className="text-orange-400" size={20} />
+                            Top 5 món bán chạy
+                          </h3>
+                          <div className="space-y-3">
+                            {stats.topItems.map((item, index) => (
+                              <div key={item.name} className="flex items-center gap-3 bg-black/40 p-3 rounded-xl border border-white/10">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${
+                                  index === 0 ? 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white' :
+                                  index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 text-white' :
+                                  index === 2 ? 'bg-gradient-to-br from-orange-600 to-orange-700 text-white' :
+                                  'bg-slate-700/60 text-slate-400'
+                                }`}>
+                                  {index + 1}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-white font-bold text-sm">{item.name}</p>
+                                  <p className="text-xs text-slate-400 font-semibold">{item.count} ly • {item.revenue.toLocaleString()}đ</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              ) : (
+              <>
               {(() => {
                 const filteredOrders = orders.filter(o => 
                   adminTab === 'active' ? o.status !== 'completed' : o.status === 'completed'
@@ -874,6 +994,8 @@ export default function App() {
                   </div>
                 ));
               })()}
+              </>
+              )}
             </div>
           </div>
         )}
