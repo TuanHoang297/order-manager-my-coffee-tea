@@ -390,29 +390,38 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-slate-100 bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden">
-      {/* Ambient Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-25">
-        <div className="absolute top-[-10%] left-[-5%] w-[45%] h-[45%] bg-slate-700/50 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[45%] bg-red-900/40 blur-[120px] rounded-full"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] h-[30%] bg-orange-900/30 blur-[100px] rounded-full"></div>
+    <div className="min-h-screen text-slate-100 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col font-sans select-none overflow-x-hidden">
+      {/* Enhanced Ambient Background */}
+      <div className="fixed inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-br from-cyan-500/30 to-blue-600/20 blur-[140px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-gradient-to-tl from-emerald-500/30 to-teal-600/20 blur-[140px] rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-[100] bg-slate-950/95 backdrop-blur-xl border-b border-slate-700/20 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden bg-white/5">
-              <img src="/logo.png" alt="Mỳ Logo" className="w-full h-full object-cover" />
+      {/* Enhanced Header */}
+      <header className="sticky top-0 z-[100] bg-slate-950/80 backdrop-blur-2xl border-b border-white/10 shadow-xl shadow-black/20">
+        <div className="px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-emerald-500 rounded-2xl blur-lg opacity-50"></div>
+              <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-500/30 ring-2 ring-white/10">
+                <img src="/logo.png" alt="Mỳ Logo" className="w-full h-full object-cover" />
+              </div>
             </div>
             <div>
-              <h1 className="text-xl font-black text-cyan-400 tracking-tight">MỲ SỮA HẠT</h1>
-              <p className="text-xs text-teal-500/60 font-bold">207 Ngô Quyền • Bình Long</p>
+              <h1 className="text-2xl font-black bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">MỲ SỮA HẠT</h1>
+              <p className="text-xs text-slate-400 font-semibold mt-0.5 flex items-center gap-1.5">
+                <Store size={12} className="text-emerald-400" />
+                207 Ngô Quyền • Bình Long
+              </p>
             </div>
           </div>
-          <div className="bg-emerald-500/15 px-3 py-1.5 rounded-full border border-emerald-500/30 flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
-            <span className="text-xs font-bold text-emerald-400">Đang mở cửa</span>
+          <div className="relative">
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-md"></div>
+            <div className="relative bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-4 py-2 rounded-full border border-emerald-400/30 flex items-center gap-2 backdrop-blur-sm">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
+              <span className="text-xs font-bold text-emerald-400">Đang mở cửa</span>
+            </div>
           </div>
         </div>
       </header>
@@ -420,69 +429,93 @@ export default function App() {
       <main className="flex-1 overflow-y-auto px-5 pt-6 pb-40">
         {view === 'customer' ? (
           <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Search */}
+            {/* Enhanced Search */}
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500/40 group-focus-within:text-cyan-400 transition-colors" size={20} />
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-all duration-300" size={20} />
               <input 
                 type="text" 
-                placeholder="Tìm kiếm đồ uống..."
-                className="w-full bg-black/40 border border-slate-700/30 rounded-2xl py-4 pl-12 pr-5 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50 focus:bg-black/60 transition-all shadow-lg shadow-black/20"
+                placeholder="Tìm kiếm đồ uống yêu thích..."
+                className="relative w-full bg-slate-900/60 border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400/50 focus:bg-slate-900/80 focus:shadow-xl focus:shadow-cyan-500/20 transition-all backdrop-blur-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            {/* Categories */}
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            {/* Enhanced Categories */}
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
               {['Tất cả', ...Object.values(Category)].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat as any)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap text-sm font-bold transition-all ${
+                  className={`relative flex items-center gap-2 px-5 py-3 rounded-2xl whitespace-nowrap text-sm font-bold transition-all duration-300 ${
                     activeCategory === cat 
-                      ? 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-xl shadow-cyan-400/40 scale-105' 
-                      : 'bg-black/40 text-teal-500/60 hover:bg-black/60 border border-slate-700/20 hover:border-slate-700/40'
+                      ? 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-2xl shadow-cyan-400/50 scale-105 ring-2 ring-white/20' 
+                      : 'bg-slate-900/60 text-slate-400 hover:bg-slate-800/80 hover:text-white border border-white/10 hover:border-white/20 hover:scale-105'
                   }`}
                 >
-                  {cat !== 'Tất cả' && getCategoryIcon(cat)}
-                  {cat}
+                  {activeCategory === cat && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-2xl blur-lg opacity-50"></div>
+                  )}
+                  <span className="relative flex items-center gap-2">
+                    {cat !== 'Tất cả' && getCategoryIcon(cat)}
+                    {cat}
+                  </span>
                 </button>
               ))}
             </div>
 
-            {/* Menu Grid */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-teal-500/60">
-                <Flame size={16} className="text-cyan-400" />
-                <span className="text-sm font-bold">Thực đơn ({filteredMenu.length} món)</span>
+            {/* Enhanced Menu Grid */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-2.5 px-1">
+                <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl border border-orange-400/30">
+                  <Flame size={18} className="text-orange-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-white">Thực đơn</h2>
+                  <p className="text-xs text-slate-400 font-semibold">{filteredMenu.length} món có sẵn</p>
+                </div>
               </div>
               
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 gap-4">
                 {filteredMenu.map(item => {
                   const itemInCart = cart.find(c => c.id === item.id);
                   return (
                     <div 
                       key={item.id} 
-                      className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
-                        itemInCart ? 'border-cyan-400/60 bg-black/60 shadow-cyan-400/20' : 'border-slate-700/20 hover:border-slate-700/40'
+                      className={`group relative bg-slate-900/60 backdrop-blur-sm border rounded-3xl p-5 flex items-center justify-between transition-all duration-300 hover:bg-slate-800/80 active:scale-[0.97] cursor-pointer ${
+                        itemInCart ? 'border-cyan-400/50 bg-slate-800/80 shadow-2xl shadow-cyan-400/20 ring-2 ring-cyan-400/20' : 'border-white/10 hover:border-white/20 hover:shadow-xl'
                       }`}
                       onClick={() => addToCart(item)}
                     >
-                      <div className="flex-1">
-                        <span className="text-xs text-cyan-400 font-bold">{item.category}</span>
-                        <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
-                        <p className="text-cyan-400 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
+                      {itemInCart && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-3xl"></div>
+                      )}
+                      
+                      <div className="relative flex-1">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-lg border border-cyan-400/30 mb-2">
+                          {getCategoryIcon(item.category)}
+                          <span className="text-xs text-cyan-400 font-bold">{item.category}</span>
+                        </div>
+                        <h3 className="font-bold text-lg text-white mb-1.5">{item.name}</h3>
+                        <div className="flex items-baseline gap-1.5">
+                          <p className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">{item.price.toLocaleString()}</p>
+                          <span className="text-sm font-bold text-slate-400">đ</span>
+                        </div>
                       </div>
                       
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                      <div className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                         itemInCart 
-                          ? 'bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-xl shadow-cyan-400/40 scale-110' 
-                          : 'bg-slate-700/20 text-cyan-400 border border-slate-700/30'
+                          ? 'bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-2xl shadow-cyan-400/50 scale-110 ring-2 ring-white/20' 
+                          : 'bg-slate-800/60 text-cyan-400 border border-white/10 group-hover:border-cyan-400/50 group-hover:bg-slate-700/60'
                       }`}>
+                        {itemInCart && (
+                          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-2xl blur-lg opacity-50"></div>
+                        )}
                         {itemInCart ? (
-                          <span className="text-lg font-black">{itemInCart.quantity}</span>
+                          <span className="relative text-xl font-black">{itemInCart.quantity}</span>
                         ) : (
-                          <Plus size={20} strokeWidth={3} />
+                          <Plus size={22} strokeWidth={2.5} className="relative" />
                         )}
                       </div>
                     </div>
@@ -493,36 +526,73 @@ export default function App() {
           </div>
         ) : (
           <div className="space-y-6 animate-in fade-in slide-in-from-right duration-500">
-            <div className="flex items-center gap-3">
-              <ReceiptText className="text-cyan-400" size={28} />
+            <div className="flex items-center gap-4 px-1">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-emerald-500/30 rounded-2xl blur-lg"></div>
+                <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 rounded-2xl border border-cyan-400/30">
+                  <ReceiptText className="text-cyan-400" size={28} />
+                </div>
+              </div>
               <div>
-                <h2 className="text-2xl font-black text-cyan-400">Quản lý đơn hàng</h2>
-                <p className="text-sm text-teal-500/60 font-bold">Theo dõi và xử lý đơn</p>
+                <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Quản lý đơn hàng</h2>
+                <p className="text-sm text-slate-400 font-semibold mt-0.5">Theo dõi và xử lý đơn</p>
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-slate-700/20">
-              <button
-                onClick={() => setAdminTab('active')}
-                className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
-                  adminTab === 'active'
-                    ? 'bg-gradient-to-r from-cyan-400 to-emerald-500 text-white shadow-lg'
-                    : 'text-teal-500/60 hover:text-cyan-400'
-                }`}
-              >
-                🔥 Cần pha chế ({orders.filter(o => o.status !== 'completed').length})
-              </button>
-              <button
-                onClick={() => setAdminTab('completed')}
-                className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
-                  adminTab === 'completed'
-                    ? 'bg-gradient-to-r from-cyan-400 to-emerald-500 text-white shadow-lg'
-                    : 'text-teal-500/60 hover:text-cyan-400'
-                }`}
-              >
-                ✓ Lịch sử ({orders.filter(o => o.status === 'completed').length})
-              </button>
+            {/* Enhanced Tabs */}
+            <div className="relative bg-slate-900/60 p-1.5 rounded-2xl border border-white/10 backdrop-blur-sm">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setAdminTab('active')}
+                  className={`relative flex-1 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    adminTab === 'active'
+                      ? 'text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {adminTab === 'active' && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl shadow-xl shadow-cyan-500/30"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-xl blur-lg opacity-50"></div>
+                    </>
+                  )}
+                  <span className="relative flex items-center justify-center gap-2">
+                    🔥 Cần pha chế
+                    <span className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                      adminTab === 'active' 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-slate-800/60 text-slate-400'
+                    }`}>
+                      {orders.filter(o => o.status !== 'completed').length}
+                    </span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => setAdminTab('completed')}
+                  className={`relative flex-1 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    adminTab === 'completed'
+                      ? 'text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {adminTab === 'completed' && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl shadow-xl shadow-cyan-500/30"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-xl blur-lg opacity-50"></div>
+                    </>
+                  )}
+                  <span className="relative flex items-center justify-center gap-2">
+                    ✓ Lịch sử
+                    <span className={`px-2 py-0.5 rounded-lg text-xs font-black ${
+                      adminTab === 'completed' 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-slate-800/60 text-slate-400'
+                    }`}>
+                      {orders.filter(o => o.status === 'completed').length}
+                    </span>
+                  </span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -533,10 +603,18 @@ export default function App() {
 
                 if (filteredOrders.length === 0) {
                   return (
-                    <div className="flex flex-col items-center justify-center py-32 text-slate-700/40">
-                      <Clock size={64} className="mb-4" strokeWidth={1.5} />
-                      <p className="font-bold">
+                    <div className="flex flex-col items-center justify-center py-32">
+                      <div className="relative mb-6">
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-700/30 to-slate-800/30 rounded-full blur-2xl"></div>
+                        <div className="relative p-8 bg-slate-900/60 rounded-full border border-white/10">
+                          <Clock size={64} className="text-slate-600" strokeWidth={1.5} />
+                        </div>
+                      </div>
+                      <p className="font-bold text-lg text-slate-500">
                         {adminTab === 'active' ? 'Chưa có đơn hàng nào' : 'Chưa có đơn đã giao'}
+                      </p>
+                      <p className="text-sm text-slate-600 mt-2">
+                        {adminTab === 'active' ? 'Đơn hàng mới sẽ xuất hiện ở đây' : 'Lịch sử đơn hàng sẽ hiển thị tại đây'}
                       </p>
                     </div>
                   );
@@ -556,55 +634,67 @@ export default function App() {
                     }
                   })
                   .map(order => (
-                  <div key={order.id} className={`rounded-2xl border overflow-hidden transition-all shadow-xl ${
+                  <div key={order.id} className={`relative rounded-3xl border overflow-hidden transition-all duration-300 shadow-2xl ${
                     isOrderDelayed(order.timestamp, order.status) 
-                      ? 'bg-red-900/20 border-red-500/40 shadow-red-500/20 ring-2 ring-red-500/30' :
-                    order.status === 'completed' ? 'bg-emerald-900/20 border-emerald-500/30 shadow-emerald-500/10' : 
-                    order.status === 'preparing' ? 'bg-blue-900/20 border-blue-500/40 shadow-blue-500/20 ring-2 ring-blue-500/30' : 
-                    'bg-black/40 border-slate-700/30 shadow-black/20'
+                      ? 'bg-gradient-to-br from-red-900/30 to-red-950/30 border-red-500/50 shadow-red-500/30 ring-2 ring-red-500/40' :
+                    order.status === 'completed' ? 'bg-gradient-to-br from-emerald-900/20 to-emerald-950/20 border-emerald-500/40 shadow-emerald-500/20' : 
+                    order.status === 'preparing' ? 'bg-gradient-to-br from-blue-900/30 to-blue-950/30 border-blue-500/50 shadow-blue-500/30 ring-2 ring-blue-500/40' : 
+                    'bg-slate-900/60 border-white/10 shadow-black/30 hover:border-white/20'
                   }`}>
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-4">
+                    {/* Glow effect for active orders */}
+                    {order.status === 'preparing' && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 animate-pulse"></div>
+                    )}
+                    {isOrderDelayed(order.timestamp, order.status) && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10 animate-pulse"></div>
+                    )}
+                    
+                    <div className="relative p-6">
+                      <div className="flex justify-between items-start mb-5">
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-black text-lg text-white">{order.customerName}</h4>
+                          <div className="flex items-center gap-2.5 mb-2">
+                            <h4 className="font-black text-xl text-white">{order.customerName}</h4>
                             {order.status === 'preparing' && (
-                              <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-lg text-xs font-bold border border-blue-500/30 animate-pulse">
+                              <span className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 text-blue-300 px-3 py-1 rounded-xl text-xs font-bold border border-blue-400/40 animate-pulse shadow-lg shadow-blue-500/30">
                                 🔥 Đang pha
                               </span>
                             )}
                             {isOrderDelayed(order.timestamp, order.status) && (
-                              <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-lg text-xs font-bold border border-red-500/30 animate-pulse">
+                              <span className="bg-gradient-to-r from-red-500/30 to-orange-500/30 text-red-300 px-3 py-1 rounded-xl text-xs font-bold border border-red-400/40 animate-pulse shadow-lg shadow-red-500/30">
                                 ⚠️ Chờ lâu
                               </span>
                             )}
                           </div>
-                          <p className={`text-xs font-bold ${
+                          <p className={`text-xs font-semibold flex items-center gap-1.5 ${
                             isOrderDelayed(order.timestamp, order.status) 
                               ? 'text-red-400' 
-                              : 'text-teal-500/60'
+                              : 'text-slate-400'
                           }`}>
+                            <Clock size={12} />
                             {getTimeAgo(order.timestamp)}
                           </p>
                         </div>
-                        <p className="text-xl font-black text-cyan-400">{order.total.toLocaleString()}đ</p>
+                        <div className="text-right">
+                          <p className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">{order.total.toLocaleString()}</p>
+                          <p className="text-xs font-semibold text-slate-400 mt-0.5">đồng</p>
+                        </div>
                       </div>
                       
-                      <div className="space-y-2 mb-4 bg-black/40 p-3 rounded-xl border border-slate-700/20">
+                      <div className="space-y-2.5 mb-5 bg-black/40 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
                         {order.items.map(i => (
-                          <div key={i.id} className="space-y-1">
-                            <div className="flex justify-between items-center text-sm">
-                              <span className="text-white font-bold flex items-center gap-2">
-                                <span className="w-6 h-6 bg-cyan-400/20 text-cyan-400 rounded-lg flex items-center justify-center text-xs font-black border border-cyan-400/30">
+                          <div key={i.id} className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-white font-bold flex items-center gap-2.5">
+                                <span className="w-7 h-7 bg-gradient-to-br from-cyan-500/30 to-emerald-500/30 text-cyan-300 rounded-xl flex items-center justify-center text-sm font-black border border-cyan-400/40 shadow-lg">
                                   {i.quantity}
                                 </span>
-                                {i.name}
+                                <span className="text-base">{i.name}</span>
                               </span>
-                              <span className="text-teal-500/80 font-bold">{(i.price * i.quantity).toLocaleString()}đ</span>
+                              <span className="text-slate-300 font-bold text-sm">{(i.price * i.quantity).toLocaleString()}đ</span>
                             </div>
                             {i.note && (
-                              <div className="flex items-start gap-2 ml-8 text-xs text-cyan-300 bg-cyan-400/10 px-3 py-2 rounded-lg border border-cyan-400/20">
-                                <MessageSquare size={14} className="mt-0.5 flex-shrink-0" />
+                              <div className="flex items-start gap-2.5 ml-9 text-sm text-cyan-300 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 px-4 py-2.5 rounded-xl border border-cyan-400/30 backdrop-blur-sm">
+                                <MessageSquare size={16} className="mt-0.5 flex-shrink-0 text-cyan-400" />
                                 <span className="italic font-medium">{i.note}</span>
                               </div>
                             )}
@@ -612,31 +702,37 @@ export default function App() {
                         ))}
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         {order.status === 'pending' && (
                           <button 
                             onClick={() => updateOrderStatus(order.id, 'preparing')} 
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-xl shadow-blue-500/30"
+                            className="relative flex-1 group overflow-hidden"
                           >
-                            Bắt đầu pha chế
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                            <div className="relative bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 rounded-2xl font-bold text-base active:scale-95 transition-all shadow-xl shadow-blue-500/40 ring-2 ring-white/10">
+                              Bắt đầu pha chế
+                            </div>
                           </button>
                         )}
                         {order.status === 'preparing' && (
                           <button 
                             onClick={() => updateOrderStatus(order.id, 'completed')} 
-                            className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-xl shadow-emerald-500/30"
+                            className="relative flex-1 group overflow-hidden"
                           >
-                            ✓ Đã pha xong
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                            <div className="relative bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-2xl font-bold text-base active:scale-95 transition-all shadow-xl shadow-emerald-500/40 ring-2 ring-white/10">
+                              ✓ Đã pha xong
+                            </div>
                           </button>
                         )}
                         {order.status === 'completed' && (
                           <>
-                            <div className="flex-1 text-emerald-400 font-bold text-sm text-center py-3 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2 bg-emerald-500/10">
-                              <CheckCircle size={16} /> Đã giao
+                            <div className="flex-1 text-emerald-400 font-bold text-base text-center py-4 rounded-2xl border border-emerald-500/40 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm">
+                              <CheckCircle size={18} /> Đã giao
                             </div>
                             <button
                               onClick={() => openAddToOrder(order.id)}
-                              className="px-4 py-3 bg-cyan-400/20 border border-cyan-400/30 rounded-xl text-cyan-400 font-bold text-sm hover:bg-cyan-400/30 active:scale-95 transition-all"
+                              className="px-5 py-4 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border border-cyan-400/40 rounded-2xl text-cyan-400 font-bold text-base hover:from-cyan-500/30 hover:to-emerald-500/30 active:scale-95 transition-all backdrop-blur-sm shadow-lg"
                             >
                               + Thêm món
                             </button>
@@ -652,62 +748,65 @@ export default function App() {
         )}
       </main>
 
-      {/* Cart Overlay */}
+      {/* Enhanced Cart Overlay */}
       {showCartDetails && (
         <div className="fixed inset-0 z-[200] flex flex-col justify-end">
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => !isOrdering && setShowCartDetails(false)}></div>
-          <div className="relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-slate-700/30 animate-in slide-in-from-bottom duration-300">
-            <div className="w-12 h-1 bg-slate-700/40 rounded-full mx-auto mb-6"></div>
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-md" onClick={() => !isOrdering && setShowCartDetails(false)}></div>
+          <div className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 rounded-t-[2rem] p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-white/10 animate-in slide-in-from-bottom duration-300">
+            <div className="w-16 h-1.5 bg-slate-700/60 rounded-full mx-auto mb-6"></div>
             
             {orderSuccess ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white p-6 rounded-3xl shadow-2xl shadow-cyan-400/40 mb-6 rotate-3">
-                  <PartyPopper size={48} />
+                <div className="relative mb-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-emerald-500 rounded-3xl blur-2xl opacity-60 animate-pulse"></div>
+                  <div className="relative bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white p-8 rounded-3xl shadow-2xl shadow-cyan-400/50 rotate-3 ring-4 ring-white/20">
+                    <PartyPopper size={56} strokeWidth={2} />
+                  </div>
                 </div>
-                <h2 className="text-3xl font-black text-cyan-400 mb-2">Đặt hàng thành công!</h2>
-                <p className="text-teal-500/60 font-bold">Đơn hàng đã được gửi đến quầy</p>
+                <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-3">Đặt hàng thành công!</h2>
+                <p className="text-slate-400 font-semibold text-lg">Đơn hàng đã được gửi đến quầy</p>
               </div>
             ) : (
               <div className="flex flex-col h-full overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h2 className="text-2xl font-black text-cyan-400">Giỏ hàng</h2>
-                    <p className="text-sm text-teal-500/60 mt-0.5 font-bold">{cart.length} món</p>
+                    <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Giỏ hàng</h2>
+                    <p className="text-sm text-slate-400 mt-1 font-semibold">{cart.length} món • {cart.reduce((a, b) => a + b.quantity, 0)} ly</p>
                   </div>
                   <button 
                     onClick={() => setShowCartDetails(false)} 
-                    className="p-2 bg-black/60 rounded-xl text-teal-500/60 hover:text-cyan-400 transition-colors border border-slate-700/20"
+                    className="p-3 bg-slate-800/60 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-700/60 transition-all border border-white/10"
                   >
-                    <X size={20} />
+                    <X size={22} />
                   </button>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
+                <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar mb-6">
                   {cart.map(item => (
-                    <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-slate-700/30 space-y-3 shadow-lg">
+                    <div key={item.id} className="bg-slate-900/60 p-5 rounded-3xl border border-white/10 space-y-4 shadow-xl backdrop-blur-sm hover:border-white/20 transition-all">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <h4 className="font-bold text-white">{item.name}</h4>
-                          <p className="text-sm text-cyan-400 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
+                          <h4 className="font-bold text-lg text-white">{item.name}</h4>
+                          <p className="text-sm text-slate-400 font-semibold mt-1">{item.price.toLocaleString()}đ / ly</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-slate-700/30">
+                        <div className="flex items-center gap-3 bg-slate-800/60 px-4 py-2.5 rounded-2xl border border-white/10">
                           <button 
                             onClick={() => updateQuantity(item.id, -1)} 
-                            className="text-red-400 hover:text-red-300 transition-colors"
+                            className="text-red-400 hover:text-red-300 transition-colors p-1"
                           >
                             <Minus size={18} strokeWidth={2.5} />
                           </button>
-                          <span className="font-black text-cyan-400 text-lg min-w-[24px] text-center">{item.quantity}</span>
+                          <span className="font-black text-cyan-400 text-xl min-w-[28px] text-center">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, 1)} 
-                            className="text-emerald-400 hover:text-emerald-300 transition-colors"
+                            className="text-emerald-400 hover:text-emerald-300 transition-colors p-1"
                           >
                             <Plus size={18} strokeWidth={2.5} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Note Section */}
+                      {/* Enhanced Note Section */}
                       {editingNoteId === item.id ? (
                         <div className="flex gap-2">
                           <input
@@ -717,25 +816,25 @@ export default function App() {
                             onBlur={() => handleNoteBlur(item.id)}
                             onKeyDown={(e) => handleNoteKeyDown(e, item.id)}
                             placeholder="Ví dụ: ít đường, nhiều đá..."
-                            className="flex-1 bg-black/60 border border-slate-700/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50"
+                            className="flex-1 bg-slate-800/60 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400/50 focus:shadow-lg focus:shadow-cyan-500/20 transition-all"
                             autoFocus
                           />
                         </div>
                       ) : (
                         <button
                           onClick={() => startEditingNote(item.id, item.note || '')}
-                          className="w-full flex items-center gap-2 text-left text-sm text-teal-500/60 hover:text-cyan-400 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-slate-700/20 hover:border-cyan-400/30"
+                          className="w-full flex items-center gap-3 text-left text-sm text-slate-400 hover:text-cyan-400 transition-all bg-slate-800/40 px-4 py-3 rounded-2xl border border-white/10 hover:border-cyan-400/40 hover:bg-slate-800/60"
                         >
                           {item.note ? (
                             <>
-                              <MessageSquare size={14} />
+                              <MessageSquare size={16} className="text-cyan-400" />
                               <span className="flex-1 text-cyan-300 italic font-medium">{item.note}</span>
-                              <Edit3 size={14} />
+                              <Edit3 size={16} className="text-slate-500" />
                             </>
                           ) : (
                             <>
-                              <Plus size={14} />
-                              <span className="font-bold">Thêm ghi chú</span>
+                              <Plus size={16} />
+                              <span className="font-semibold">Thêm ghi chú</span>
                             </>
                           )}
                         </button>
@@ -744,36 +843,47 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-slate-700/30">
+                <div className="space-y-5 pt-5 border-t border-white/10">
                   <div className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500/40 group-focus-within:text-cyan-400 transition-colors" size={18} />
+                    <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors" size={20} />
                     <input 
                       type="text" 
                       placeholder="Tên hoặc số bàn..."
-                      className="w-full bg-black/60 border border-slate-700/30 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50"
+                      className="w-full bg-slate-800/60 border border-white/10 rounded-2xl py-4 pl-14 pr-5 text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400/50 focus:shadow-lg focus:shadow-cyan-500/20 transition-all"
                       value={customerNameInput}
                       onChange={(e) => setCustomerNameInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="flex justify-between items-center px-1">
-                    <span className="text-teal-500/60 text-sm font-bold">Tổng cộng</span>
-                    <span className="text-3xl font-black text-cyan-400">{cartTotal.toLocaleString()}đ</span>
+                  <div className="flex justify-between items-center px-2">
+                    <span className="text-slate-400 text-base font-semibold">Tổng cộng</span>
+                    <div className="text-right">
+                      <p className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">{cartTotal.toLocaleString()}</p>
+                      <p className="text-xs font-semibold text-slate-400 mt-0.5">đồng</p>
+                    </div>
                   </div>
 
                   <button 
                     onClick={handlePlaceOrder}
                     disabled={isOrdering}
-                    className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
+                    className={`relative w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 overflow-hidden ${
                       isOrdering 
-                        ? 'bg-slate-700/40 text-teal-500/40' 
-                        : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-2xl shadow-cyan-400/40 active:scale-[0.98]'
+                        ? 'bg-slate-800/60 text-slate-500' 
+                        : 'group'
                     }`}
                   >
+                    {!isOrdering && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 group-hover:scale-105 transition-transform"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                      </>
+                    )}
                     {isOrdering ? (
-                      <div className="w-6 h-6 border-3 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
+                      <div className="w-7 h-7 border-3 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
                     ) : (
-                      <>Xác nhận đặt hàng <ChevronRight size={24} strokeWidth={3} /></>
+                      <span className="relative flex items-center gap-3">
+                        Xác nhận đặt hàng <ChevronRight size={26} strokeWidth={3} />
+                      </span>
                     )}
                   </button>
                 </div>
@@ -783,27 +893,36 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating Cart Button */}
+      {/* Enhanced Floating Cart Button */}
       {view === 'customer' && cart.length > 0 && !showCartDetails && (
         <div className="fixed bottom-28 left-5 right-5 z-[150] animate-in slide-in-from-bottom duration-300">
-          <button 
-            className="w-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 rounded-2xl p-4 shadow-2xl shadow-cyan-400/40 flex items-center justify-between active:scale-95 transition-all border border-cyan-300/30"
-            onClick={() => setShowCartDetails(true)}
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-black/30 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg">
-                {cart.reduce((a, b) => a + b.quantity, 0)}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-3xl blur-2xl opacity-60 animate-pulse"></div>
+            <button 
+              className="relative w-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 rounded-3xl p-5 shadow-2xl shadow-cyan-400/50 flex items-center justify-between active:scale-95 transition-all duration-300 ring-2 ring-white/20"
+              onClick={() => setShowCartDetails(true)}
+            >
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/20 rounded-2xl blur-md"></div>
+                  <div className="relative bg-white/20 backdrop-blur-sm w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-lg ring-2 ring-white/30">
+                    {cart.reduce((a, b) => a + b.quantity, 0)}
+                  </div>
+                </div>
+                <div className="text-left">
+                  <p className="text-white font-black text-lg">Xem giỏ hàng</p>
+                  <p className="text-white/70 text-sm font-semibold">Nhấn để thanh toán</p>
+                </div>
               </div>
-              <div className="text-left">
-                <p className="text-white font-black text-base">Xem giỏ hàng</p>
-                <p className="text-white/60 text-xs font-bold">Nhấn để thanh toán</p>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-white font-black text-2xl">{(cartTotal / 1000).toFixed(0)}K</p>
+                  <p className="text-white/70 text-xs font-semibold">{cart.length} món</p>
+                </div>
+                <ChevronDown size={24} className="text-white/80" strokeWidth={2.5} />
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white font-black text-xl">{(cartTotal / 1000).toFixed(0)}K</span>
-              <ChevronDown size={20} className="text-white/60" />
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
       )}
 
@@ -949,28 +1068,40 @@ export default function App() {
         </div>
       )}
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-6 left-6 right-6 z-[180] bg-slate-900/95 backdrop-blur-xl border border-slate-700/30 px-8 py-4 flex justify-around items-center rounded-2xl shadow-2xl">
+      {/* Enhanced Bottom Navigation */}
+      <nav className="fixed bottom-6 left-6 right-6 z-[180] bg-slate-900/80 backdrop-blur-2xl border border-white/10 px-10 py-5 flex justify-around items-center rounded-3xl shadow-2xl shadow-black/40">
         <button 
           onClick={() => setView('customer')}
-          className={`flex flex-col items-center gap-1.5 transition-all ${
-            view === 'customer' ? 'text-cyan-400' : 'text-teal-500/40'
+          className={`relative flex flex-col items-center gap-2 transition-all duration-300 ${
+            view === 'customer' ? 'text-cyan-400 scale-110' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <ShoppingCart size={24} strokeWidth={view === 'customer' ? 2.5 : 2} />
-          <span className="text-xs font-bold">Thực đơn</span>
+          {view === 'customer' && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-2xl blur-xl"></div>
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-cyan-400 to-teal-400 rounded-full"></div>
+            </>
+          )}
+          <ShoppingCart size={26} strokeWidth={view === 'customer' ? 2.5 : 2} className="relative" />
+          <span className="relative text-xs font-bold">Thực đơn</span>
         </button>
         
-        <div className="w-px h-8 bg-slate-700/30"></div>
+        <div className="w-px h-10 bg-white/10"></div>
 
         <button 
           onClick={() => setView('admin')}
-          className={`flex flex-col items-center gap-1.5 transition-all ${
-            view === 'admin' ? 'text-cyan-400' : 'text-teal-500/40'
+          className={`relative flex flex-col items-center gap-2 transition-all duration-300 ${
+            view === 'admin' ? 'text-cyan-400 scale-110' : 'text-slate-500 hover:text-slate-300'
           }`}
         >
-          <ClipboardList size={24} strokeWidth={view === 'admin' ? 2.5 : 2} />
-          <span className="text-xs font-bold">Quản lý</span>
+          {view === 'admin' && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-2xl blur-xl"></div>
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-cyan-400 to-teal-400 rounded-full"></div>
+            </>
+          )}
+          <ClipboardList size={26} strokeWidth={view === 'admin' ? 2.5 : 2} className="relative" />
+          <span className="relative text-xs font-bold">Quản lý</span>
         </button>
       </nav>
 
