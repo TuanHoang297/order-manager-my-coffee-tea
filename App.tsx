@@ -42,6 +42,18 @@ export default function App() {
   const [adminTab, setAdminTab] = useState<'active' | 'completed'>('active');
   const [addingToOrderId, setAddingToOrderId] = useState<string | null>(null);
   const [additionalCart, setAdditionalCart] = useState<OrderItem[]>([]);
+  const [, setTimeUpdate] = useState(0);
+  const [editingAdditionalNoteId, setEditingAdditionalNoteId] = useState<string | null>(null);
+  const [additionalNoteInput, setAdditionalNoteInput] = useState('');
+
+  // Auto-refresh time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeUpdate(prev => prev + 1);
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Function to play notification sound
   const playNotificationSound = () => {
@@ -236,6 +248,33 @@ export default function App() {
     });
   };
 
+  const updateAdditionalNote = (id: string, note: string) => {
+    setAdditionalCart(prev => prev.map(item => 
+      item.id === id ? { ...item, note } : item
+    ));
+  };
+
+  const startEditingAdditionalNote = (id: string, currentNote: string) => {
+    setEditingAdditionalNoteId(id);
+    setAdditionalNoteInput(currentNote || '');
+  };
+
+  const saveAdditionalNote = (id: string) => {
+    updateAdditionalNote(id, additionalNoteInput);
+    setEditingAdditionalNoteId(null);
+    setAdditionalNoteInput('');
+  };
+
+  const handleAdditionalNoteBlur = (id: string) => {
+    saveAdditionalNote(id);
+  };
+
+  const handleAdditionalNoteKeyDown = (e: React.KeyboardEvent, id: string) => {
+    if (e.key === 'Enter') {
+      saveAdditionalNote(id);
+    }
+  };
+
   const handleAddToExistingOrder = async () => {
     if (additionalCart.length === 0 || !addingToOrderId) return;
     setIsOrdering(true);
@@ -323,6 +362,31 @@ export default function App() {
       case Category.HEALTHY: return <Leaf size={14} />;
       default: return null;
     }
+  };
+
+  const getTimeAgo = (timestamp: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - timestamp.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} ngày trước`;
+  };
+
+  const isOrderDelayed = (timestamp: Date, status: Order['status']) => {
+    if (status === 'completed') return false;
+    
+    const now = new Date();
+    const diffMs = now.getTime() - timestamp.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    return diffMins > 15;
   };
 
   return (
@@ -493,6 +557,8 @@ export default function App() {
                   })
                   .map(order => (
                   <div key={order.id} className={`rounded-2xl border overflow-hidden transition-all shadow-xl ${
+                    isOrderDelayed(order.timestamp, order.status) 
+                      ? 'bg-red-900/20 border-red-500/40 shadow-red-500/20 ring-2 ring-red-500/30' :
                     order.status === 'completed' ? 'bg-emerald-900/20 border-emerald-500/30 shadow-emerald-500/10' : 
                     order.status === 'preparing' ? 'bg-blue-900/20 border-blue-500/40 shadow-blue-500/20 ring-2 ring-blue-500/30' : 
                     'bg-black/40 border-amber-900/30 shadow-black/20'
@@ -507,8 +573,19 @@ export default function App() {
                                 🔥 Đang pha
                               </span>
                             )}
+                            {isOrderDelayed(order.timestamp, order.status) && (
+                              <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-lg text-xs font-bold border border-red-500/30 animate-pulse">
+                                ⚠️ Chờ lâu
+                              </span>
+                            )}
                           </div>
-                          <p className="text-xs text-amber-600/60 font-bold">{order.timestamp.toLocaleString('vi-VN')}</p>
+                          <p className={`text-xs font-bold ${
+                            isOrderDelayed(order.timestamp, order.status) 
+                              ? 'text-red-400' 
+                              : 'text-amber-600/60'
+                          }`}>
+                            {getTimeAgo(order.timestamp)}
+                          </p>
                         </div>
                         <p className="text-xl font-black text-amber-500">{order.total.toLocaleString()}đ</p>
                       </div>
@@ -734,95 +811,140 @@ export default function App() {
       {addingToOrderId && (
         <div className="fixed inset-0 z-[200] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setAddingToOrderId(null)}></div>
-          <div className="relative bg-gradient-to-b from-[#1a0808] to-[#0a0404] rounded-t-3xl p-6 max-h-[85vh] flex flex-col shadow-2xl border-t border-amber-900/30 animate-in slide-in-from-bottom duration-300">
+          <div className="relative bg-gradient-to-b from-[#1a0808] to-[#0a0404] rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-amber-900/30 animate-in slide-in-from-bottom duration-300">
             <div className="w-12 h-1 bg-amber-900/40 rounded-full mx-auto mb-6"></div>
             
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-black text-amber-500">Thêm món</h2>
-                <p className="text-sm text-amber-600/60 mt-0.5 font-bold">
-                  Đơn #{orders.find(o => o.id === addingToOrderId)?.id} - {orders.find(o => o.id === addingToOrderId)?.customerName}
-                </p>
-              </div>
-              <button 
-                onClick={() => setAddingToOrderId(null)} 
-                className="p-2 bg-black/60 rounded-xl text-amber-600/60 hover:text-amber-500 transition-colors border border-amber-900/20"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Menu Grid */}
-            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
-              {MENU_ITEMS.map(item => {
-                const itemInCart = additionalCart.find(c => c.id === item.id);
-                return (
-                  <div 
-                    key={item.id} 
-                    className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
-                      itemInCart ? 'border-amber-500/60 bg-black/60 shadow-amber-500/20' : 'border-amber-900/20 hover:border-amber-900/40'
-                    }`}
-                    onClick={() => addToAdditionalCart(item)}
-                  >
-                    <div className="flex-1">
-                      <span className="text-xs text-amber-500 font-bold">{item.category}</span>
-                      <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
-                      <p className="text-amber-500 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
-                    </div>
-                    
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                      itemInCart 
-                        ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-110' 
-                        : 'bg-amber-900/20 text-amber-500 border border-amber-900/30'
-                    }`}>
-                      {itemInCart ? (
-                        <span className="text-lg font-black">{itemInCart.quantity}</span>
-                      ) : (
-                        <Plus size={20} strokeWidth={3} />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Cart Summary */}
-            {additionalCart.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-amber-900/30">
-                <div className="space-y-2 max-h-32 overflow-y-auto no-scrollbar">
-                  {additionalCart.map(item => (
-                    <div key={item.id} className="flex items-center justify-between text-sm bg-black/40 px-3 py-2 rounded-xl">
-                      <span className="text-white font-bold">{item.name}</span>
-                      <div className="flex items-center gap-3">
-                        <button onClick={() => updateAdditionalQuantity(item.id, -1)} className="text-red-400">
-                          <Minus size={16} strokeWidth={2.5} />
-                        </button>
-                        <span className="text-amber-500 font-black min-w-[20px] text-center">{item.quantity}</span>
-                        <button onClick={() => updateAdditionalQuantity(item.id, 1)} className="text-emerald-400">
-                          <Plus size={16} strokeWidth={2.5} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+            <div className="flex flex-col h-full overflow-hidden">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-amber-500">Thêm món</h2>
+                  <p className="text-sm text-amber-600/60 mt-0.5 font-bold">
+                    {orders.find(o => o.id === addingToOrderId)?.customerName}
+                  </p>
                 </div>
-
                 <button 
-                  onClick={handleAddToExistingOrder}
-                  disabled={isOrdering}
-                  className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
-                    isOrdering 
-                      ? 'bg-amber-900/40 text-amber-600/40' 
-                      : 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-2xl shadow-amber-500/40 active:scale-[0.98]'
-                  }`}
+                  onClick={() => setAddingToOrderId(null)} 
+                  className="p-2 bg-black/60 rounded-xl text-amber-600/60 hover:text-amber-500 transition-colors border border-amber-900/20"
                 >
-                  {isOrdering ? (
-                    <div className="w-6 h-6 border-3 border-amber-900 border-t-amber-500 rounded-full animate-spin"></div>
-                  ) : (
-                    <>Xác nhận thêm món <ChevronRight size={24} strokeWidth={3} /></>
-                  )}
+                  <X size={20} />
                 </button>
               </div>
-            )}
+
+              {/* Menu Grid - Scrollable */}
+              <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
+                {MENU_ITEMS.map(item => {
+                  const itemInCart = additionalCart.find(c => c.id === item.id);
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
+                        itemInCart ? 'border-amber-500/60 bg-black/60 shadow-amber-500/20' : 'border-amber-900/20 hover:border-amber-900/40'
+                      }`}
+                      onClick={() => addToAdditionalCart(item)}
+                    >
+                      <div className="flex-1">
+                        <span className="text-xs text-amber-500 font-bold">{item.category}</span>
+                        <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
+                        <p className="text-amber-500 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
+                      </div>
+                      
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                        itemInCart 
+                          ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-110' 
+                          : 'bg-amber-900/20 text-amber-500 border border-amber-900/30'
+                      }`}>
+                        {itemInCart ? (
+                          <span className="text-lg font-black">{itemInCart.quantity}</span>
+                        ) : (
+                          <Plus size={20} strokeWidth={3} />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Cart Summary - Same as main cart */}
+              {additionalCart.length > 0 && (
+                <div className="space-y-4 pt-4 border-t border-amber-900/30">
+                  <div className="space-y-3 max-h-64 overflow-y-auto no-scrollbar">
+                    {additionalCart.map(item => (
+                      <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-amber-900/30 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-white">{item.name}</h4>
+                            <p className="text-sm text-amber-500 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
+                          </div>
+                          <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-amber-900/30">
+                            <button 
+                              onClick={() => updateAdditionalQuantity(item.id, -1)} 
+                              className="text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              <Minus size={18} strokeWidth={2.5} />
+                            </button>
+                            <span className="font-black text-amber-500 text-lg min-w-[24px] text-center">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateAdditionalQuantity(item.id, 1)} 
+                              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+                            >
+                              <Plus size={18} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Note Section */}
+                        {editingAdditionalNoteId === item.id ? (
+                          <input
+                            type="text"
+                            value={additionalNoteInput}
+                            onChange={(e) => setAdditionalNoteInput(e.target.value)}
+                            onBlur={() => handleAdditionalNoteBlur(item.id)}
+                            onKeyDown={(e) => handleAdditionalNoteKeyDown(e, item.id)}
+                            placeholder="Ví dụ: ít đường, nhiều đá..."
+                            className="w-full bg-black/60 border border-amber-900/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50"
+                            autoFocus
+                          />
+                        ) : (
+                          <button
+                            onClick={() => startEditingAdditionalNote(item.id, item.note || '')}
+                            className="w-full flex items-center gap-2 text-left text-sm text-amber-600/60 hover:text-amber-500 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-amber-900/20 hover:border-amber-500/30"
+                          >
+                            {item.note ? (
+                              <>
+                                <MessageSquare size={14} />
+                                <span className="flex-1 text-amber-400 italic font-medium">{item.note}</span>
+                                <Edit3 size={14} />
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={14} />
+                                <span className="font-bold">Thêm ghi chú</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={handleAddToExistingOrder}
+                    disabled={isOrdering}
+                    className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
+                      isOrdering 
+                        ? 'bg-amber-900/40 text-amber-600/40' 
+                        : 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-2xl shadow-amber-500/40 active:scale-[0.98]'
+                    }`}
+                  >
+                    {isOrdering ? (
+                      <div className="w-6 h-6 border-3 border-amber-900 border-t-amber-500 rounded-full animate-spin"></div>
+                    ) : (
+                      <>Xác nhận thêm món <ChevronRight size={24} strokeWidth={3} /></>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
