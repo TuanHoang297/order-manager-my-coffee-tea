@@ -390,24 +390,24 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-slate-100 bg-[#0a0404] flex flex-col font-sans select-none overflow-x-hidden">
+    <div className="min-h-screen text-slate-100 bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden">
       {/* Ambient Background */}
       <div className="fixed inset-0 pointer-events-none opacity-25">
-        <div className="absolute top-[-10%] left-[-5%] w-[45%] h-[45%] bg-amber-900/50 blur-[120px] rounded-full"></div>
+        <div className="absolute top-[-10%] left-[-5%] w-[45%] h-[45%] bg-slate-700/50 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[45%] bg-red-900/40 blur-[120px] rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] h-[30%] bg-orange-900/30 blur-[100px] rounded-full"></div>
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-[100] bg-[#0a0404]/95 backdrop-blur-xl border-b border-amber-900/20 px-6 py-4">
+      <header className="sticky top-0 z-[100] bg-slate-950/95 backdrop-blur-xl border-b border-slate-700/20 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden bg-white/5">
               <img src="/logo.png" alt="Mỳ Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-amber-500 tracking-tight">MỲ SỮA HẠT</h1>
-              <p className="text-xs text-amber-600/60 font-bold">207 Ngô Quyền • Bình Long</p>
+              <h1 className="text-xl font-black text-cyan-400 tracking-tight">MỲ SỮA HẠT</h1>
+              <p className="text-xs text-teal-500/60 font-bold">207 Ngô Quyền • Bình Long</p>
             </div>
           </div>
           <div className="bg-emerald-500/15 px-3 py-1.5 rounded-full border border-emerald-500/30 flex items-center gap-2">
@@ -422,11 +422,11 @@ export default function App() {
           <div className="space-y-6 animate-in fade-in duration-500">
             {/* Search */}
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-600/40 group-focus-within:text-amber-500 transition-colors" size={20} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500/40 group-focus-within:text-cyan-400 transition-colors" size={20} />
               <input 
                 type="text" 
                 placeholder="Tìm kiếm đồ uống..."
-                className="w-full bg-black/40 border border-amber-900/30 rounded-2xl py-4 pl-12 pr-5 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all shadow-lg shadow-black/20"
+                className="w-full bg-black/40 border border-slate-700/30 rounded-2xl py-4 pl-12 pr-5 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50 focus:bg-black/60 transition-all shadow-lg shadow-black/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -440,8 +440,8 @@ export default function App() {
                   onClick={() => setActiveCategory(cat as any)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap text-sm font-bold transition-all ${
                     activeCategory === cat 
-                      ? 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-105' 
-                      : 'bg-black/40 text-amber-600/60 hover:bg-black/60 border border-amber-900/20 hover:border-amber-900/40'
+                      ? 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-xl shadow-cyan-400/40 scale-105' 
+                      : 'bg-black/40 text-teal-500/60 hover:bg-black/60 border border-slate-700/20 hover:border-slate-700/40'
                   }`}
                 >
                   {cat !== 'Tất cả' && getCategoryIcon(cat)}
@@ -452,8 +452,8 @@ export default function App() {
 
             {/* Menu Grid */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-amber-600/60">
-                <Flame size={16} className="text-amber-500" />
+              <div className="flex items-center gap-2 text-teal-500/60">
+                <Flame size={16} className="text-cyan-400" />
                 <span className="text-sm font-bold">Thực đơn ({filteredMenu.length} món)</span>
               </div>
               
@@ -464,20 +464,20 @@ export default function App() {
                     <div 
                       key={item.id} 
                       className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
-                        itemInCart ? 'border-amber-500/60 bg-black/60 shadow-amber-500/20' : 'border-amber-900/20 hover:border-amber-900/40'
+                        itemInCart ? 'border-cyan-400/60 bg-black/60 shadow-cyan-400/20' : 'border-slate-700/20 hover:border-slate-700/40'
                       }`}
                       onClick={() => addToCart(item)}
                     >
                       <div className="flex-1">
-                        <span className="text-xs text-amber-500 font-bold">{item.category}</span>
+                        <span className="text-xs text-cyan-400 font-bold">{item.category}</span>
                         <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
-                        <p className="text-amber-500 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
+                        <p className="text-cyan-400 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
                       </div>
                       
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                         itemInCart 
-                          ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-110' 
-                          : 'bg-amber-900/20 text-amber-500 border border-amber-900/30'
+                          ? 'bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-xl shadow-cyan-400/40 scale-110' 
+                          : 'bg-slate-700/20 text-cyan-400 border border-slate-700/30'
                       }`}>
                         {itemInCart ? (
                           <span className="text-lg font-black">{itemInCart.quantity}</span>
@@ -494,21 +494,21 @@ export default function App() {
         ) : (
           <div className="space-y-6 animate-in fade-in slide-in-from-right duration-500">
             <div className="flex items-center gap-3">
-              <ReceiptText className="text-amber-500" size={28} />
+              <ReceiptText className="text-cyan-400" size={28} />
               <div>
-                <h2 className="text-2xl font-black text-amber-500">Quản lý đơn hàng</h2>
-                <p className="text-sm text-amber-600/60 font-bold">Theo dõi và xử lý đơn</p>
+                <h2 className="text-2xl font-black text-cyan-400">Quản lý đơn hàng</h2>
+                <p className="text-sm text-teal-500/60 font-bold">Theo dõi và xử lý đơn</p>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-amber-900/20">
+            <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-slate-700/20">
               <button
                 onClick={() => setAdminTab('active')}
                 className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
                   adminTab === 'active'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-black shadow-lg'
-                    : 'text-amber-600/60 hover:text-amber-500'
+                    ? 'bg-gradient-to-r from-cyan-400 to-emerald-500 text-white shadow-lg'
+                    : 'text-teal-500/60 hover:text-cyan-400'
                 }`}
               >
                 🔥 Cần pha chế ({orders.filter(o => o.status !== 'completed').length})
@@ -517,8 +517,8 @@ export default function App() {
                 onClick={() => setAdminTab('completed')}
                 className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
                   adminTab === 'completed'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-black shadow-lg'
-                    : 'text-amber-600/60 hover:text-amber-500'
+                    ? 'bg-gradient-to-r from-cyan-400 to-emerald-500 text-white shadow-lg'
+                    : 'text-teal-500/60 hover:text-cyan-400'
                 }`}
               >
                 ✓ Lịch sử ({orders.filter(o => o.status === 'completed').length})
@@ -533,7 +533,7 @@ export default function App() {
 
                 if (filteredOrders.length === 0) {
                   return (
-                    <div className="flex flex-col items-center justify-center py-32 text-amber-900/40">
+                    <div className="flex flex-col items-center justify-center py-32 text-slate-700/40">
                       <Clock size={64} className="mb-4" strokeWidth={1.5} />
                       <p className="font-bold">
                         {adminTab === 'active' ? 'Chưa có đơn hàng nào' : 'Chưa có đơn đã giao'}
@@ -561,7 +561,7 @@ export default function App() {
                       ? 'bg-red-900/20 border-red-500/40 shadow-red-500/20 ring-2 ring-red-500/30' :
                     order.status === 'completed' ? 'bg-emerald-900/20 border-emerald-500/30 shadow-emerald-500/10' : 
                     order.status === 'preparing' ? 'bg-blue-900/20 border-blue-500/40 shadow-blue-500/20 ring-2 ring-blue-500/30' : 
-                    'bg-black/40 border-amber-900/30 shadow-black/20'
+                    'bg-black/40 border-slate-700/30 shadow-black/20'
                   }`}>
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-4">
@@ -582,28 +582,28 @@ export default function App() {
                           <p className={`text-xs font-bold ${
                             isOrderDelayed(order.timestamp, order.status) 
                               ? 'text-red-400' 
-                              : 'text-amber-600/60'
+                              : 'text-teal-500/60'
                           }`}>
                             {getTimeAgo(order.timestamp)}
                           </p>
                         </div>
-                        <p className="text-xl font-black text-amber-500">{order.total.toLocaleString()}đ</p>
+                        <p className="text-xl font-black text-cyan-400">{order.total.toLocaleString()}đ</p>
                       </div>
                       
-                      <div className="space-y-2 mb-4 bg-black/40 p-3 rounded-xl border border-amber-900/20">
+                      <div className="space-y-2 mb-4 bg-black/40 p-3 rounded-xl border border-slate-700/20">
                         {order.items.map(i => (
                           <div key={i.id} className="space-y-1">
                             <div className="flex justify-between items-center text-sm">
                               <span className="text-white font-bold flex items-center gap-2">
-                                <span className="w-6 h-6 bg-amber-500/20 text-amber-500 rounded-lg flex items-center justify-center text-xs font-black border border-amber-500/30">
+                                <span className="w-6 h-6 bg-cyan-400/20 text-cyan-400 rounded-lg flex items-center justify-center text-xs font-black border border-cyan-400/30">
                                   {i.quantity}
                                 </span>
                                 {i.name}
                               </span>
-                              <span className="text-amber-600/80 font-bold">{(i.price * i.quantity).toLocaleString()}đ</span>
+                              <span className="text-teal-500/80 font-bold">{(i.price * i.quantity).toLocaleString()}đ</span>
                             </div>
                             {i.note && (
-                              <div className="flex items-start gap-2 ml-8 text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-lg border border-amber-500/20">
+                              <div className="flex items-start gap-2 ml-8 text-xs text-cyan-300 bg-cyan-400/10 px-3 py-2 rounded-lg border border-cyan-400/20">
                                 <MessageSquare size={14} className="mt-0.5 flex-shrink-0" />
                                 <span className="italic font-medium">{i.note}</span>
                               </div>
@@ -636,7 +636,7 @@ export default function App() {
                             </div>
                             <button
                               onClick={() => openAddToOrder(order.id)}
-                              className="px-4 py-3 bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-500 font-bold text-sm hover:bg-amber-500/30 active:scale-95 transition-all"
+                              className="px-4 py-3 bg-cyan-400/20 border border-cyan-400/30 rounded-xl text-cyan-400 font-bold text-sm hover:bg-cyan-400/30 active:scale-95 transition-all"
                             >
                               + Thêm món
                             </button>
@@ -656,27 +656,27 @@ export default function App() {
       {showCartDetails && (
         <div className="fixed inset-0 z-[200] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => !isOrdering && setShowCartDetails(false)}></div>
-          <div className="relative bg-gradient-to-b from-[#1a0808] to-[#0a0404] rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-amber-900/30 animate-in slide-in-from-bottom duration-300">
-            <div className="w-12 h-1 bg-amber-900/40 rounded-full mx-auto mb-6"></div>
+          <div className="relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-slate-700/30 animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1 bg-slate-700/40 rounded-full mx-auto mb-6"></div>
             
             {orderSuccess ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black p-6 rounded-3xl shadow-2xl shadow-amber-500/40 mb-6 rotate-3">
+                <div className="bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white p-6 rounded-3xl shadow-2xl shadow-cyan-400/40 mb-6 rotate-3">
                   <PartyPopper size={48} />
                 </div>
-                <h2 className="text-3xl font-black text-amber-500 mb-2">Đặt hàng thành công!</h2>
-                <p className="text-amber-600/60 font-bold">Đơn hàng đã được gửi đến quầy</p>
+                <h2 className="text-3xl font-black text-cyan-400 mb-2">Đặt hàng thành công!</h2>
+                <p className="text-teal-500/60 font-bold">Đơn hàng đã được gửi đến quầy</p>
               </div>
             ) : (
               <div className="flex flex-col h-full overflow-hidden">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h2 className="text-2xl font-black text-amber-500">Giỏ hàng</h2>
-                    <p className="text-sm text-amber-600/60 mt-0.5 font-bold">{cart.length} món</p>
+                    <h2 className="text-2xl font-black text-cyan-400">Giỏ hàng</h2>
+                    <p className="text-sm text-teal-500/60 mt-0.5 font-bold">{cart.length} món</p>
                   </div>
                   <button 
                     onClick={() => setShowCartDetails(false)} 
-                    className="p-2 bg-black/60 rounded-xl text-amber-600/60 hover:text-amber-500 transition-colors border border-amber-900/20"
+                    className="p-2 bg-black/60 rounded-xl text-teal-500/60 hover:text-cyan-400 transition-colors border border-slate-700/20"
                   >
                     <X size={20} />
                   </button>
@@ -684,20 +684,20 @@ export default function App() {
                 
                 <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
                   {cart.map(item => (
-                    <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-amber-900/30 space-y-3 shadow-lg">
+                    <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-slate-700/30 space-y-3 shadow-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h4 className="font-bold text-white">{item.name}</h4>
-                          <p className="text-sm text-amber-500 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
+                          <p className="text-sm text-cyan-400 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-amber-900/30">
+                        <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-slate-700/30">
                           <button 
                             onClick={() => updateQuantity(item.id, -1)} 
                             className="text-red-400 hover:text-red-300 transition-colors"
                           >
                             <Minus size={18} strokeWidth={2.5} />
                           </button>
-                          <span className="font-black text-amber-500 text-lg min-w-[24px] text-center">{item.quantity}</span>
+                          <span className="font-black text-cyan-400 text-lg min-w-[24px] text-center">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, 1)} 
                             className="text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -717,19 +717,19 @@ export default function App() {
                             onBlur={() => handleNoteBlur(item.id)}
                             onKeyDown={(e) => handleNoteKeyDown(e, item.id)}
                             placeholder="Ví dụ: ít đường, nhiều đá..."
-                            className="flex-1 bg-black/60 border border-amber-900/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50"
+                            className="flex-1 bg-black/60 border border-slate-700/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50"
                             autoFocus
                           />
                         </div>
                       ) : (
                         <button
                           onClick={() => startEditingNote(item.id, item.note || '')}
-                          className="w-full flex items-center gap-2 text-left text-sm text-amber-600/60 hover:text-amber-500 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-amber-900/20 hover:border-amber-500/30"
+                          className="w-full flex items-center gap-2 text-left text-sm text-teal-500/60 hover:text-cyan-400 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-slate-700/20 hover:border-cyan-400/30"
                         >
                           {item.note ? (
                             <>
                               <MessageSquare size={14} />
-                              <span className="flex-1 text-amber-400 italic font-medium">{item.note}</span>
+                              <span className="flex-1 text-cyan-300 italic font-medium">{item.note}</span>
                               <Edit3 size={14} />
                             </>
                           ) : (
@@ -744,21 +744,21 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-amber-900/30">
+                <div className="space-y-4 pt-4 border-t border-slate-700/30">
                   <div className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-600/40 group-focus-within:text-amber-500 transition-colors" size={18} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500/40 group-focus-within:text-cyan-400 transition-colors" size={18} />
                     <input 
                       type="text" 
                       placeholder="Tên hoặc số bàn..."
-                      className="w-full bg-black/60 border border-amber-900/30 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50"
+                      className="w-full bg-black/60 border border-slate-700/30 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50"
                       value={customerNameInput}
                       onChange={(e) => setCustomerNameInput(e.target.value)}
                     />
                   </div>
 
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-amber-600/60 text-sm font-bold">Tổng cộng</span>
-                    <span className="text-3xl font-black text-amber-500">{cartTotal.toLocaleString()}đ</span>
+                    <span className="text-teal-500/60 text-sm font-bold">Tổng cộng</span>
+                    <span className="text-3xl font-black text-cyan-400">{cartTotal.toLocaleString()}đ</span>
                   </div>
 
                   <button 
@@ -766,12 +766,12 @@ export default function App() {
                     disabled={isOrdering}
                     className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
                       isOrdering 
-                        ? 'bg-amber-900/40 text-amber-600/40' 
-                        : 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-2xl shadow-amber-500/40 active:scale-[0.98]'
+                        ? 'bg-slate-700/40 text-teal-500/40' 
+                        : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-2xl shadow-cyan-400/40 active:scale-[0.98]'
                     }`}
                   >
                     {isOrdering ? (
-                      <div className="w-6 h-6 border-3 border-amber-900 border-t-amber-500 rounded-full animate-spin"></div>
+                      <div className="w-6 h-6 border-3 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
                     ) : (
                       <>Xác nhận đặt hàng <ChevronRight size={24} strokeWidth={3} /></>
                     )}
@@ -787,7 +787,7 @@ export default function App() {
       {view === 'customer' && cart.length > 0 && !showCartDetails && (
         <div className="fixed bottom-28 left-5 right-5 z-[150] animate-in slide-in-from-bottom duration-300">
           <button 
-            className="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 rounded-2xl p-4 shadow-2xl shadow-amber-500/40 flex items-center justify-between active:scale-95 transition-all border border-amber-400/30"
+            className="w-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 rounded-2xl p-4 shadow-2xl shadow-cyan-400/40 flex items-center justify-between active:scale-95 transition-all border border-cyan-300/30"
             onClick={() => setShowCartDetails(true)}
           >
             <div className="flex items-center gap-3">
@@ -795,13 +795,13 @@ export default function App() {
                 {cart.reduce((a, b) => a + b.quantity, 0)}
               </div>
               <div className="text-left">
-                <p className="text-black font-black text-base">Xem giỏ hàng</p>
-                <p className="text-black/60 text-xs font-bold">Nhấn để thanh toán</p>
+                <p className="text-white font-black text-base">Xem giỏ hàng</p>
+                <p className="text-white/60 text-xs font-bold">Nhấn để thanh toán</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-black font-black text-xl">{(cartTotal / 1000).toFixed(0)}K</span>
-              <ChevronDown size={20} className="text-black/60" />
+              <span className="text-white font-black text-xl">{(cartTotal / 1000).toFixed(0)}K</span>
+              <ChevronDown size={20} className="text-white/60" />
             </div>
           </button>
         </div>
@@ -811,20 +811,20 @@ export default function App() {
       {addingToOrderId && (
         <div className="fixed inset-0 z-[200] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setAddingToOrderId(null)}></div>
-          <div className="relative bg-gradient-to-b from-[#1a0808] to-[#0a0404] rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-amber-900/30 animate-in slide-in-from-bottom duration-300">
-            <div className="w-12 h-1 bg-amber-900/40 rounded-full mx-auto mb-6"></div>
+          <div className="relative bg-gradient-to-b from-slate-900 to-slate-950 rounded-t-3xl p-6 max-h-[90vh] flex flex-col shadow-2xl border-t border-slate-700/30 animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1 bg-slate-700/40 rounded-full mx-auto mb-6"></div>
             
             <div className="flex flex-col h-full overflow-hidden">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="text-2xl font-black text-amber-500">Thêm món</h2>
-                  <p className="text-sm text-amber-600/60 mt-0.5 font-bold">
+                  <h2 className="text-2xl font-black text-cyan-400">Thêm món</h2>
+                  <p className="text-sm text-teal-500/60 mt-0.5 font-bold">
                     {orders.find(o => o.id === addingToOrderId)?.customerName}
                   </p>
                 </div>
                 <button 
                   onClick={() => setAddingToOrderId(null)} 
-                  className="p-2 bg-black/60 rounded-xl text-amber-600/60 hover:text-amber-500 transition-colors border border-amber-900/20"
+                  className="p-2 bg-black/60 rounded-xl text-teal-500/60 hover:text-cyan-400 transition-colors border border-slate-700/20"
                 >
                   <X size={20} />
                 </button>
@@ -838,20 +838,20 @@ export default function App() {
                     <div 
                       key={item.id} 
                       className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
-                        itemInCart ? 'border-amber-500/60 bg-black/60 shadow-amber-500/20' : 'border-amber-900/20 hover:border-amber-900/40'
+                        itemInCart ? 'border-cyan-400/60 bg-black/60 shadow-cyan-400/20' : 'border-slate-700/20 hover:border-slate-700/40'
                       }`}
                       onClick={() => addToAdditionalCart(item)}
                     >
                       <div className="flex-1">
-                        <span className="text-xs text-amber-500 font-bold">{item.category}</span>
+                        <span className="text-xs text-cyan-400 font-bold">{item.category}</span>
                         <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
-                        <p className="text-amber-500 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
+                        <p className="text-cyan-400 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
                       </div>
                       
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                         itemInCart 
-                          ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-110' 
-                          : 'bg-amber-900/20 text-amber-500 border border-amber-900/30'
+                          ? 'bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-xl shadow-cyan-400/40 scale-110' 
+                          : 'bg-slate-700/20 text-cyan-400 border border-slate-700/30'
                       }`}>
                         {itemInCart ? (
                           <span className="text-lg font-black">{itemInCart.quantity}</span>
@@ -866,23 +866,23 @@ export default function App() {
 
               {/* Cart Summary - Same as main cart */}
               {additionalCart.length > 0 && (
-                <div className="space-y-4 pt-4 border-t border-amber-900/30">
+                <div className="space-y-4 pt-4 border-t border-slate-700/30">
                   <div className="space-y-3 max-h-64 overflow-y-auto no-scrollbar">
                     {additionalCart.map(item => (
-                      <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-amber-900/30 space-y-3 shadow-lg">
+                      <div key={item.id} className="bg-black/60 p-4 rounded-2xl border border-slate-700/30 space-y-3 shadow-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <h4 className="font-bold text-white">{item.name}</h4>
-                            <p className="text-sm text-amber-500 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
+                            <p className="text-sm text-cyan-400 font-bold mt-0.5">{item.price.toLocaleString()}đ / ly</p>
                           </div>
-                          <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-amber-900/30">
+                          <div className="flex items-center gap-3 bg-black/60 px-3 py-2 rounded-xl border border-slate-700/30">
                             <button 
                               onClick={() => updateAdditionalQuantity(item.id, -1)} 
                               className="text-red-400 hover:text-red-300 transition-colors"
                             >
                               <Minus size={18} strokeWidth={2.5} />
                             </button>
-                            <span className="font-black text-amber-500 text-lg min-w-[24px] text-center">{item.quantity}</span>
+                            <span className="font-black text-cyan-400 text-lg min-w-[24px] text-center">{item.quantity}</span>
                             <button 
                               onClick={() => updateAdditionalQuantity(item.id, 1)} 
                               className="text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -901,18 +901,18 @@ export default function App() {
                             onBlur={() => handleAdditionalNoteBlur(item.id)}
                             onKeyDown={(e) => handleAdditionalNoteKeyDown(e, item.id)}
                             placeholder="Ví dụ: ít đường, nhiều đá..."
-                            className="w-full bg-black/60 border border-amber-900/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-amber-600/30 focus:outline-none focus:border-amber-500/50"
+                            className="w-full bg-black/60 border border-slate-700/30 rounded-xl px-3 py-2 text-sm text-white placeholder:text-teal-500/30 focus:outline-none focus:border-cyan-400/50"
                             autoFocus
                           />
                         ) : (
                           <button
                             onClick={() => startEditingAdditionalNote(item.id, item.note || '')}
-                            className="w-full flex items-center gap-2 text-left text-sm text-amber-600/60 hover:text-amber-500 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-amber-900/20 hover:border-amber-500/30"
+                            className="w-full flex items-center gap-2 text-left text-sm text-teal-500/60 hover:text-cyan-400 transition-colors bg-black/40 px-3 py-2 rounded-xl border border-slate-700/20 hover:border-cyan-400/30"
                           >
                             {item.note ? (
                               <>
                                 <MessageSquare size={14} />
-                                <span className="flex-1 text-amber-400 italic font-medium">{item.note}</span>
+                                <span className="flex-1 text-cyan-300 italic font-medium">{item.note}</span>
                                 <Edit3 size={14} />
                               </>
                             ) : (
@@ -932,12 +932,12 @@ export default function App() {
                     disabled={isOrdering}
                     className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
                       isOrdering 
-                        ? 'bg-amber-900/40 text-amber-600/40' 
-                        : 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-2xl shadow-amber-500/40 active:scale-[0.98]'
+                        ? 'bg-slate-700/40 text-teal-500/40' 
+                        : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-white shadow-2xl shadow-cyan-400/40 active:scale-[0.98]'
                     }`}
                   >
                     {isOrdering ? (
-                      <div className="w-6 h-6 border-3 border-amber-900 border-t-amber-500 rounded-full animate-spin"></div>
+                      <div className="w-6 h-6 border-3 border-slate-700 border-t-cyan-400 rounded-full animate-spin"></div>
                     ) : (
                       <>Xác nhận thêm món <ChevronRight size={24} strokeWidth={3} /></>
                     )}
@@ -950,23 +950,23 @@ export default function App() {
       )}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-6 left-6 right-6 z-[180] bg-[#1a0808]/95 backdrop-blur-xl border border-amber-900/30 px-8 py-4 flex justify-around items-center rounded-2xl shadow-2xl">
+      <nav className="fixed bottom-6 left-6 right-6 z-[180] bg-slate-900/95 backdrop-blur-xl border border-slate-700/30 px-8 py-4 flex justify-around items-center rounded-2xl shadow-2xl">
         <button 
           onClick={() => setView('customer')}
           className={`flex flex-col items-center gap-1.5 transition-all ${
-            view === 'customer' ? 'text-amber-500' : 'text-amber-600/40'
+            view === 'customer' ? 'text-cyan-400' : 'text-teal-500/40'
           }`}
         >
           <ShoppingCart size={24} strokeWidth={view === 'customer' ? 2.5 : 2} />
           <span className="text-xs font-bold">Thực đơn</span>
         </button>
         
-        <div className="w-px h-8 bg-amber-900/30"></div>
+        <div className="w-px h-8 bg-slate-700/30"></div>
 
         <button 
           onClick={() => setView('admin')}
           className={`flex flex-col items-center gap-1.5 transition-all ${
-            view === 'admin' ? 'text-amber-500' : 'text-amber-600/40'
+            view === 'admin' ? 'text-cyan-400' : 'text-teal-500/40'
           }`}
         >
           <ClipboardList size={24} strokeWidth={view === 'admin' ? 2.5 : 2} />
