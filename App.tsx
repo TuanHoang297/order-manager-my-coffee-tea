@@ -45,6 +45,7 @@ export default function App() {
   const [, setTimeUpdate] = useState(0);
   const [editingAdditionalNoteId, setEditingAdditionalNoteId] = useState<string | null>(null);
   const [additionalNoteInput, setAdditionalNoteInput] = useState('');
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
 
   // Auto-refresh time every minute
   useEffect(() => {
@@ -357,6 +358,68 @@ export default function App() {
       console.error('Lỗi khi cập nhật trạng thái:', error);
       alert('Có lỗi xảy ra khi cập nhật trạng thái!');
     }
+  };
+
+  const updateOrderItems = async (orderId: string, newItems: OrderItem[]) => {
+    try {
+      const order = orders.find(o => o.id === orderId);
+      if (order?.firebaseId) {
+        const newTotal = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        await updateOrderStatusFirebase(order.firebaseId, order.status, newItems, newTotal);
+        if (window.navigator.vibrate) window.navigator.vibrate(20);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật items:', error);
+      alert('Có lỗi xảy ra khi cập nhật món!');
+    }
+  };
+
+  const updateOrderItemQuantity = (orderId: string, itemId: string, delta: number) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const newItems = order.items.map(item => {
+      if (item.id === itemId) {
+        const newQty = Math.max(0, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }).filter(i => i.quantity > 0);
+
+    updateOrderItems(orderId, newItems);
+  };
+
+  const removeOrderItem = (orderId: string, itemId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const newItems = order.items.filter(i => i.id !== itemId);
+    if (newItems.length === 0) {
+      alert('Không thể xóa hết món! Phải có ít nhất 1 món.');
+      return;
+    }
+
+    updateOrderItems(orderId, newItems);
+  };
+
+  const addItemToOrder = (orderId: string, menuItem: MenuItem) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const existingItem = order.items.find(i => i.id === menuItem.id && !i.note);
+    if (existingItem) {
+      // Increase quantity if item already exists
+      const newItems = order.items.map(i => 
+        i === existingItem ? { ...i, quantity: i.quantity + 1 } : i
+      );
+      updateOrderItems(orderId, newItems);
+    } else {
+      // Add new item
+      const newItems = [...order.items, { ...menuItem, quantity: 1, note: '' }];
+      updateOrderItems(orderId, newItems);
+    }
+    
+    if (window.navigator.vibrate) window.navigator.vibrate(12);
   };
 
   const getCategoryIcon = (cat: string) => {
@@ -686,16 +749,46 @@ export default function App() {
                       </div>
                       
                       <div className="space-y-2.5 mb-5 bg-black/40 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
-                        {order.items.map(i => (
-                          <div key={i.id} className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-white font-bold flex items-center gap-2.5">
-                                <span className="w-7 h-7 bg-gradient-to-br from-cyan-500/30 to-emerald-500/30 text-cyan-300 rounded-xl flex items-center justify-center text-sm font-black border border-cyan-400/40 shadow-lg">
-                                  {i.quantity}
-                                </span>
+                        {order.items.map((i, idx) => (
+                          <div key={`${i.id}-${idx}`} className="space-y-2">
+                            <div className="flex justify-between items-center gap-3">
+                              <span className="text-white font-bold flex items-center gap-2.5 flex-1">
+                                {editingOrderId === order.id && order.status !== 'completed' ? (
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => updateOrderItemQuantity(order.id, i.id, -1)}
+                                      className="w-7 h-7 bg-red-500/20 text-red-400 rounded-lg flex items-center justify-center border border-red-400/40 hover:bg-red-500/30 active:scale-95 transition-all"
+                                    >
+                                      <Minus size={14} strokeWidth={2.5} />
+                                    </button>
+                                    <span className="w-7 h-7 bg-gradient-to-br from-cyan-500/30 to-emerald-500/30 text-cyan-300 rounded-xl flex items-center justify-center text-sm font-black border border-cyan-400/40 shadow-lg">
+                                      {i.quantity}
+                                    </span>
+                                    <button
+                                      onClick={() => updateOrderItemQuantity(order.id, i.id, 1)}
+                                      className="w-7 h-7 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center border border-emerald-400/40 hover:bg-emerald-500/30 active:scale-95 transition-all"
+                                    >
+                                      <Plus size={14} strokeWidth={2.5} />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="w-7 h-7 bg-gradient-to-br from-cyan-500/30 to-emerald-500/30 text-cyan-300 rounded-xl flex items-center justify-center text-sm font-black border border-cyan-400/40 shadow-lg">
+                                    {i.quantity}
+                                  </span>
+                                )}
                                 <span className="text-base">{i.name}</span>
                               </span>
-                              <span className="text-slate-300 font-bold text-sm">{(i.price * i.quantity).toLocaleString()}đ</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-300 font-bold text-sm">{(i.price * i.quantity).toLocaleString()}đ</span>
+                                {editingOrderId === order.id && order.status !== 'completed' && (
+                                  <button
+                                    onClick={() => removeOrderItem(order.id, i.id)}
+                                    className="w-7 h-7 bg-red-500/20 text-red-400 rounded-lg flex items-center justify-center border border-red-400/40 hover:bg-red-500/30 active:scale-95 transition-all"
+                                  >
+                                    <X size={14} strokeWidth={2.5} />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                             {i.note && (
                               <div className="flex items-start gap-2.5 ml-9 text-sm text-cyan-300 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 px-4 py-2.5 rounded-xl border border-cyan-400/30 backdrop-blur-sm">
@@ -705,9 +798,42 @@ export default function App() {
                             )}
                           </div>
                         ))}
+                        
+                        {/* Add new item section when editing */}
+                        {editingOrderId === order.id && order.status !== 'completed' && (
+                          <div className="pt-3 mt-3 border-t border-white/10">
+                            <p className="text-xs text-slate-400 font-bold mb-2 flex items-center gap-1.5">
+                              <Plus size={12} /> Thêm món mới
+                            </p>
+                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                              {MENU_ITEMS.map(menuItem => (
+                                <button
+                                  key={menuItem.id}
+                                  onClick={() => addItemToOrder(order.id, menuItem)}
+                                  className="bg-slate-800/60 hover:bg-slate-700/60 border border-white/10 hover:border-cyan-400/40 rounded-xl p-2.5 text-left transition-all active:scale-95"
+                                >
+                                  <p className="text-white font-bold text-xs mb-0.5">{menuItem.name}</p>
+                                  <p className="text-cyan-400 font-black text-xs">{menuItem.price.toLocaleString()}đ</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex gap-3">
+                        {order.status !== 'completed' && (
+                          <button
+                            onClick={() => setEditingOrderId(editingOrderId === order.id ? null : order.id)}
+                            className={`px-5 py-4 rounded-2xl font-bold text-base active:scale-95 transition-all backdrop-blur-sm shadow-lg ${
+                              editingOrderId === order.id
+                                ? 'bg-gradient-to-r from-orange-500/30 to-red-500/30 border border-orange-400/40 text-orange-300'
+                                : 'bg-gradient-to-r from-slate-500/20 to-slate-600/20 border border-slate-400/40 text-slate-300 hover:from-slate-500/30 hover:to-slate-600/30'
+                            }`}
+                          >
+                            {editingOrderId === order.id ? '✓ Xong' : <Edit3 size={18} />}
+                          </button>
+                        )}
                         {order.status === 'pending' && (
                           <button 
                             onClick={() => updateOrderStatus(order.id, 'preparing')} 
