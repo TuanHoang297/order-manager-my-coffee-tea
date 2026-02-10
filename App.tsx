@@ -260,9 +260,7 @@ export default function App() {
       setAdditionalCart([]);
       setAddingToOrderId(null);
       setIsOrdering(false);
-      
-      // Switch back to customer view (order page) for staff to continue
-      setView('customer');
+      setAdminTab('active'); // Switch to active tab to see new order
       
       if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50]);
     } catch (error) {
