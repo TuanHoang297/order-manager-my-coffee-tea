@@ -38,13 +38,78 @@ export default function App() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState('');
+  const [previousOrderCount, setPreviousOrderCount] = useState(0);
+  const [adminTab, setAdminTab] = useState<'active' | 'completed'>('active');
+  const [addingToOrderId, setAddingToOrderId] = useState<string | null>(null);
+  const [additionalCart, setAdditionalCart] = useState<OrderItem[]>([]);
+
+  // Function to play notification sound
+  const playNotificationSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create a pleasant notification sound (3 beeps)
+      const playBeep = (frequency: number, startTime: number, duration: number) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.5, startTime); // Tăng volume lên
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+      };
+      
+      const now = audioContext.currentTime;
+      playBeep(800, now, 0.2);
+      playBeep(1000, now + 0.25, 0.2);
+      playBeep(1200, now + 0.5, 0.25);
+      
+      console.log('🔔 Notification sound played!');
+    } catch (error) {
+      console.error('Could not play notification sound:', error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeToOrders((firebaseOrders) => {
+      // Check if there's a new order that needs processing (only in admin view)
+      if (view === 'admin' && adminTab === 'active') {
+        const activeOrders = firebaseOrders.filter(o => o.status !== 'completed');
+        const previousActiveCount = orders.filter(o => o.status !== 'completed').length;
+        
+        if (activeOrders.length > previousActiveCount && previousActiveCount > 0) {
+          playNotificationSound();
+          
+          // Show browser notification if permission granted
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Đơn hàng mới! 🔔', {
+              body: 'Có đơn hàng mới cần pha chế',
+              icon: '/logo.png',
+              badge: '/logo.png'
+            });
+          }
+        }
+      }
+      
+      setPreviousOrderCount(firebaseOrders.length);
       setOrders(firebaseOrders);
     });
     return () => unsubscribe();
-  }, []);
+  }, [view, adminTab, orders]);
+
+  // Request notification permission when entering admin view
+  useEffect(() => {
+    if (view === 'admin' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, [view]);
 
   const filteredMenu = useMemo(() => {
     return MENU_ITEMS.filter(item => {
@@ -144,10 +209,105 @@ export default function App() {
     }
   };
 
+  const openAddToOrder = (orderId: string) => {
+    setAddingToOrderId(orderId);
+    setAdditionalCart([]);
+  };
+
+  const addToAdditionalCart = (item: MenuItem) => {
+    setAdditionalCart(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...item, quantity: 1, note: '' }];
+    });
+  };
+
+  const updateAdditionalQuantity = (id: string, delta: number) => {
+    setAdditionalCart(prev => {
+      return prev.map(item => {
+        if (item.id === id) {
+          const newQty = Math.max(0, item.quantity + delta);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      }).filter(i => i.quantity > 0);
+    });
+  };
+
+  const handleAddToExistingOrder = async () => {
+    if (additionalCart.length === 0 || !addingToOrderId) return;
+    setIsOrdering(true);
+
+    try {
+      const originalOrder = orders.find(o => o.id === addingToOrderId);
+      if (!originalOrder) return;
+
+      // Create a NEW order with only the additional items, linked to parent
+      const newOrder: Order = {
+        id: Math.random().toString(36).substr(2, 4).toUpperCase(),
+        items: [...additionalCart],
+        status: 'pending',
+        timestamp: new Date(),
+        customerName: `${originalOrder.customerName} (Thêm)`,
+        total: additionalCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        parentOrderId: originalOrder.firebaseId // Link to parent order
+      };
+      
+      await saveOrder(newOrder);
+      
+      setAdditionalCart([]);
+      setAddingToOrderId(null);
+      setIsOrdering(false);
+      
+      // Switch back to customer view (order page) for staff to continue
+      setView('customer');
+      
+      if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50]);
+    } catch (error) {
+      console.error('Lỗi khi thêm món:', error);
+      setIsOrdering(false);
+      alert('Có lỗi xảy ra khi thêm món!');
+    }
+  };
+
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
       const order = orders.find(o => o.id === orderId);
       if (order?.firebaseId) {
+        // If completing an order that has a parent, merge it back
+        if (status === 'completed' && order.parentOrderId) {
+          const parentOrder = orders.find(o => o.firebaseId === order.parentOrderId);
+          
+          if (parentOrder && parentOrder.firebaseId) {
+            // Merge items into parent order
+            const mergedItems = [...parentOrder.items];
+            
+            order.items.forEach(newItem => {
+              const existingItem = mergedItems.find(i => i.id === newItem.id && i.note === newItem.note);
+              if (existingItem) {
+                existingItem.quantity += newItem.quantity;
+              } else {
+                mergedItems.push(newItem);
+              }
+            });
+
+            const newTotal = mergedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // Update parent order with merged items
+            await updateOrderStatusFirebase(parentOrder.firebaseId, 'completed', mergedItems, newTotal);
+            
+            // Delete the child order (it's been merged)
+            const { deleteOrder } = await import('./services/firebaseService');
+            await deleteOrder(order.firebaseId);
+            
+            if (window.navigator.vibrate) window.navigator.vibrate(20);
+            return;
+          }
+        }
+        
+        // Normal status update
         await updateOrderStatusFirebase(order.firebaseId, status);
         if (window.navigator.vibrate) window.navigator.vibrate(20);
       }
@@ -279,17 +439,64 @@ export default function App() {
               </div>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-amber-900/20">
+              <button
+                onClick={() => setAdminTab('active')}
+                className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                  adminTab === 'active'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-black shadow-lg'
+                    : 'text-amber-600/60 hover:text-amber-500'
+                }`}
+              >
+                🔥 Cần pha chế ({orders.filter(o => o.status !== 'completed').length})
+              </button>
+              <button
+                onClick={() => setAdminTab('completed')}
+                className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                  adminTab === 'completed'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-black shadow-lg'
+                    : 'text-amber-600/60 hover:text-amber-500'
+                }`}
+              >
+                ✓ Lịch sử ({orders.filter(o => o.status === 'completed').length})
+              </button>
+            </div>
+
             <div className="space-y-3">
-              {orders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-32 text-amber-900/40">
-                  <Clock size={64} className="mb-4" strokeWidth={1.5} />
-                  <p className="font-bold">Chưa có đơn hàng nào</p>
-                </div>
-              ) : (
-                orders.map(order => (
+              {(() => {
+                const filteredOrders = orders.filter(o => 
+                  adminTab === 'active' ? o.status !== 'completed' : o.status === 'completed'
+                );
+
+                if (filteredOrders.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-32 text-amber-900/40">
+                      <Clock size={64} className="mb-4" strokeWidth={1.5} />
+                      <p className="font-bold">
+                        {adminTab === 'active' ? 'Chưa có đơn hàng nào' : 'Chưa có đơn đã giao'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return filteredOrders
+                  .sort((a, b) => {
+                    if (adminTab === 'active') {
+                      // Active orders: preparing first (oldest first), then pending (oldest first)
+                      const statusOrder = { preparing: 0, pending: 1 };
+                      const statusDiff = statusOrder[a.status as 'preparing' | 'pending'] - statusOrder[b.status as 'preparing' | 'pending'];
+                      if (statusDiff !== 0) return statusDiff;
+                      return a.timestamp.getTime() - b.timestamp.getTime();
+                    } else {
+                      // Completed orders: newest first
+                      return b.timestamp.getTime() - a.timestamp.getTime();
+                    }
+                  })
+                  .map(order => (
                   <div key={order.id} className={`rounded-2xl border overflow-hidden transition-all shadow-xl ${
                     order.status === 'completed' ? 'bg-emerald-900/20 border-emerald-500/30 shadow-emerald-500/10' : 
-                    order.status === 'preparing' ? 'bg-blue-900/20 border-blue-500/30 shadow-blue-500/10' : 
+                    order.status === 'preparing' ? 'bg-blue-900/20 border-blue-500/40 shadow-blue-500/20 ring-2 ring-blue-500/30' : 
                     'bg-black/40 border-amber-900/30 shadow-black/20'
                   }`}>
                     <div className="p-5">
@@ -298,6 +505,11 @@ export default function App() {
                           <div className="flex items-center gap-2 mb-1">
                             <span className="bg-gradient-to-r from-amber-500 to-orange-600 text-black px-2 py-0.5 rounded-lg text-xs font-black shadow-lg shadow-amber-500/30">#{order.id}</span>
                             <h4 className="font-black text-lg text-white">{order.customerName}</h4>
+                            {order.status === 'preparing' && (
+                              <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-lg text-xs font-bold border border-blue-500/30 animate-pulse">
+                                🔥 Đang pha
+                              </span>
+                            )}
                           </div>
                           <p className="text-xs text-amber-600/60 font-bold">{order.timestamp.toLocaleString('vi-VN')}</p>
                         </div>
@@ -340,19 +552,27 @@ export default function App() {
                             onClick={() => updateOrderStatus(order.id, 'completed')} 
                             className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-xl shadow-emerald-500/30"
                           >
-                            Hoàn tất
+                            ✓ Đã pha xong
                           </button>
                         )}
                         {order.status === 'completed' && (
-                          <div className="flex-1 text-emerald-400 font-bold text-sm text-center py-3 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2 bg-emerald-500/10">
-                            <CheckCircle size={16} /> Đã giao
-                          </div>
+                          <>
+                            <div className="flex-1 text-emerald-400 font-bold text-sm text-center py-3 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2 bg-emerald-500/10">
+                              <CheckCircle size={16} /> Đã giao
+                            </div>
+                            <button
+                              onClick={() => openAddToOrder(order.id)}
+                              className="px-4 py-3 bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-500 font-bold text-sm hover:bg-amber-500/30 active:scale-95 transition-all"
+                            >
+                              + Thêm món
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
                   </div>
-                ))
-              )}
+                ));
+              })()}
             </div>
           </div>
         )}
@@ -510,6 +730,103 @@ export default function App() {
               <ChevronDown size={20} className="text-black/60" />
             </div>
           </button>
+        </div>
+      )}
+
+      {/* Add to Order Modal */}
+      {addingToOrderId && (
+        <div className="fixed inset-0 z-[200] flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setAddingToOrderId(null)}></div>
+          <div className="relative bg-gradient-to-b from-[#1a0808] to-[#0a0404] rounded-t-3xl p-6 max-h-[85vh] flex flex-col shadow-2xl border-t border-amber-900/30 animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1 bg-amber-900/40 rounded-full mx-auto mb-6"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-black text-amber-500">Thêm món</h2>
+                <p className="text-sm text-amber-600/60 mt-0.5 font-bold">
+                  Đơn #{orders.find(o => o.id === addingToOrderId)?.id} - {orders.find(o => o.id === addingToOrderId)?.customerName}
+                </p>
+              </div>
+              <button 
+                onClick={() => setAddingToOrderId(null)} 
+                className="p-2 bg-black/60 rounded-xl text-amber-600/60 hover:text-amber-500 transition-colors border border-amber-900/20"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Menu Grid */}
+            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
+              {MENU_ITEMS.map(item => {
+                const itemInCart = additionalCart.find(c => c.id === item.id);
+                return (
+                  <div 
+                    key={item.id} 
+                    className={`group bg-black/40 backdrop-blur-sm border rounded-2xl p-4 flex items-center justify-between transition-all hover:bg-black/60 active:scale-[0.98] shadow-lg ${
+                      itemInCart ? 'border-amber-500/60 bg-black/60 shadow-amber-500/20' : 'border-amber-900/20 hover:border-amber-900/40'
+                    }`}
+                    onClick={() => addToAdditionalCart(item)}
+                  >
+                    <div className="flex-1">
+                      <span className="text-xs text-amber-500 font-bold">{item.category}</span>
+                      <h3 className="font-bold text-base text-white mt-0.5">{item.name}</h3>
+                      <p className="text-amber-500 font-black text-lg mt-1">{item.price.toLocaleString()}đ</p>
+                    </div>
+                    
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                      itemInCart 
+                        ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-black shadow-xl shadow-amber-500/40 scale-110' 
+                        : 'bg-amber-900/20 text-amber-500 border border-amber-900/30'
+                    }`}>
+                      {itemInCart ? (
+                        <span className="text-lg font-black">{itemInCart.quantity}</span>
+                      ) : (
+                        <Plus size={20} strokeWidth={3} />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Cart Summary */}
+            {additionalCart.length > 0 && (
+              <div className="space-y-3 pt-4 border-t border-amber-900/30">
+                <div className="space-y-2 max-h-32 overflow-y-auto no-scrollbar">
+                  {additionalCart.map(item => (
+                    <div key={item.id} className="flex items-center justify-between text-sm bg-black/40 px-3 py-2 rounded-xl">
+                      <span className="text-white font-bold">{item.name}</span>
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => updateAdditionalQuantity(item.id, -1)} className="text-red-400">
+                          <Minus size={16} strokeWidth={2.5} />
+                        </button>
+                        <span className="text-amber-500 font-black min-w-[20px] text-center">{item.quantity}</span>
+                        <button onClick={() => updateAdditionalQuantity(item.id, 1)} className="text-emerald-400">
+                          <Plus size={16} strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={handleAddToExistingOrder}
+                  disabled={isOrdering}
+                  className={`w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
+                    isOrdering 
+                      ? 'bg-amber-900/40 text-amber-600/40' 
+                      : 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-black shadow-2xl shadow-amber-500/40 active:scale-[0.98]'
+                  }`}
+                >
+                  {isOrdering ? (
+                    <div className="w-6 h-6 border-3 border-amber-900 border-t-amber-500 rounded-full animate-spin"></div>
+                  ) : (
+                    <>Xác nhận thêm món <ChevronRight size={24} strokeWidth={3} /></>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

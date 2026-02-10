@@ -37,10 +37,25 @@ export const subscribeToOrders = (callback: (orders: Order[]) => void) => {
   });
 };
 
-// Cập nhật trạng thái đơn hàng
-export const updateOrderStatus = async (firebaseId: string, status: Order['status']): Promise<void> => {
+// Cập nhật trạng thái đơn hàng (và items, total nếu có)
+export const updateOrderStatus = async (
+  firebaseId: string, 
+  status: Order['status'],
+  items?: Order['items'],
+  total?: number
+): Promise<void> => {
   const orderRef = ref(database, `orders/${firebaseId}`);
-  await update(orderRef, { status });
+  const updates: any = { status };
+  
+  if (items) {
+    updates.items = items;
+  }
+  
+  if (total !== undefined) {
+    updates.total = total;
+  }
+  
+  await update(orderRef, updates);
 };
 
 // Xóa đơn hàng

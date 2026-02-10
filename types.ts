@@ -27,4 +27,5 @@ export interface Order {
   customerName?: string;
   total: number;
   firebaseId?: string; // ID từ Firebase Realtime Database
+  parentOrderId?: string; // ID của đơn gốc (nếu là đơn thêm món)
 }
