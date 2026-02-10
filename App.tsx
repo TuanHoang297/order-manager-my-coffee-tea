@@ -950,212 +950,221 @@ export default function App() {
                         );
                       }
 
-                      return filteredOrders
-                        .sort((a, b) => {
-                          if (adminTab === 'active') {
-                            // Active orders: preparing first (oldest first), then pending (oldest first)
-                            const statusOrder = { preparing: 0, pending: 1 };
-                            const statusDiff = statusOrder[a.status as 'preparing' | 'pending'] - statusOrder[b.status as 'preparing' | 'pending'];
-                            if (statusDiff !== 0) return statusDiff;
-                            return a.timestamp.getTime() - b.timestamp.getTime();
-                          } else {
-                            // Completed orders: newest first
-                            return b.timestamp.getTime() - a.timestamp.getTime();
-                          }
-                        })
-                        .map(order => (
-                          <div key={order.id} className={`bg-white border rounded-xl overflow-hidden shadow-sm ${isOrderDelayed(order.timestamp, order.status)
-                            ? 'border-red-300 ring-2 ring-red-100' :
-                            order.status === 'completed' ? 'border-green-200' :
-                              order.status === 'preparing' ? 'border-indigo-300 ring-2 ring-indigo-100' :
-                                'border-gray-200'
-                            }`}>
-                            <div className="p-4">
-                              <div className="flex justify-between items-start mb-4">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-bold text-lg text-gray-900">{order.customerName}</h4>
-                                    {order.status === 'preparing' && (
-                                      <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold">
-                                        🔥 Đang pha
-                                      </span>
-                                    )}
-                                    {isOrderDelayed(order.timestamp, order.status) && (
-                                      <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">
-                                        ⚠️ Chờ lâu
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className={`text-xs font-medium flex items-center gap-1 ${isOrderDelayed(order.timestamp, order.status)
-                                    ? 'text-red-600'
-                                    : 'text-gray-500'
-                                    }`}>
-                                    <Clock size={11} />
-                                    {getTimeAgo(order.timestamp)}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-2xl font-bold text-indigo-600">{order.total.toLocaleString()}</p>
-                                  <p className="text-xs text-gray-500">đồng</p>
-                                </div>
-                              </div>
+                      const sortedOrders = [...filteredOrders].sort((a, b) => {
+                        if (adminTab === 'active') {
+                          // Active orders: preparing first (oldest first), then pending (oldest first)
+                          const statusOrder = { preparing: 0, pending: 1 };
+                          const statusDiff = statusOrder[a.status as 'preparing' | 'pending'] - statusOrder[b.status as 'preparing' | 'pending'];
+                          if (statusDiff !== 0) return statusDiff;
+                          return a.timestamp.getTime() - b.timestamp.getTime();
+                        } else {
+                          // Completed orders: newest first
+                          return b.timestamp.getTime() - a.timestamp.getTime();
+                        }
+                      });
 
-                              <div className="space-y-2.5 mb-5 bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
-                                {order.items.map((i, idx) => (
-                                  <div key={`${i.id}-${idx}`} className="space-y-2">
-                                    <div className="flex justify-between items-center gap-3">
-                                      <span className="text-gray-800 font-bold flex items-center gap-2.5 flex-1">
-                                        {editingOrderId === order.id && order.status !== 'completed' ? (
-                                          <div className="flex items-center gap-2">
-                                            <button
-                                              onClick={() => updateOrderItemQuantity(order.id, i.id, -1)}
-                                              className="w-7 h-7 bg-red-100 text-red-500 rounded-lg flex items-center justify-center border border-red-200 hover:bg-red-200 active:scale-95 transition-all"
-                                            >
-                                              <Minus size={14} strokeWidth={2.5} />
-                                            </button>
-                                            <span className="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm font-black">
-                                              {i.quantity}x
-                                            </span>
-                                            <button
-                                              onClick={() => updateOrderItemQuantity(order.id, i.id, 1)}
-                                              className="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center border border-emerald-200 hover:bg-emerald-200 active:scale-95 transition-all"
-                                            >
-                                              <Plus size={14} strokeWidth={2.5} />
-                                            </button>
-                                          </div>
-                                        ) : (
+                      const firstOrderId = sortedOrders.length > 0 ? sortedOrders[0].id : null;
+
+                      return sortedOrders.map(order => (
+                        <div key={order.id} className={`bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${order.id === firstOrderId && adminTab === 'active'
+                            ? 'border-blue-500 ring-4 ring-blue-100 shadow-md scale-[1.01] z-10'
+                            : isOrderDelayed(order.timestamp, order.status)
+                              ? 'border-red-300 ring-2 ring-red-100' :
+                              order.status === 'completed' ? 'border-green-200' :
+                                order.status === 'preparing' ? 'border-indigo-300 ring-2 ring-indigo-100' :
+                                  'border-gray-200'
+                          }`}>
+                          <div className="p-4">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-bold text-lg text-gray-900">{order.customerName}</h4>
+                                  {order.id === firstOrderId && adminTab === 'active' && (
+                                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold animate-pulse">
+                                      ƯU TIÊN
+                                    </span>
+                                  )}
+                                  {order.status === 'preparing' && (
+                                    <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold">
+                                      🔥 Đang pha
+                                    </span>
+                                  )}
+                                  {isOrderDelayed(order.timestamp, order.status) && (
+                                    <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">
+                                      ⚠️ Chờ lâu
+                                    </span>
+                                  )}
+                                </div>
+                                <p className={`text-xs font-medium flex items-center gap-1 ${isOrderDelayed(order.timestamp, order.status)
+                                  ? 'text-red-600'
+                                  : 'text-gray-500'
+                                  }`}>
+                                  <Clock size={11} />
+                                  {getTimeAgo(order.timestamp)}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-2xl font-bold text-indigo-600">{order.total.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">đồng</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2.5 mb-5 bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
+                              {order.items.map((i, idx) => (
+                                <div key={`${i.id}-${idx}`} className="space-y-2">
+                                  <div className="flex justify-between items-center gap-3">
+                                    <span className="text-gray-800 font-bold flex items-center gap-2.5 flex-1">
+                                      {editingOrderId === order.id && order.status !== 'completed' ? (
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            onClick={() => updateOrderItemQuantity(order.id, i.id, -1)}
+                                            className="w-7 h-7 bg-red-100 text-red-500 rounded-lg flex items-center justify-center border border-red-200 hover:bg-red-200 active:scale-95 transition-all"
+                                          >
+                                            <Minus size={14} strokeWidth={2.5} />
+                                          </button>
                                           <span className="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm font-black">
                                             {i.quantity}x
                                           </span>
-                                        )}
-                                        <span className="text-base">{i.name}</span>
-                                      </span>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-indigo-700 font-bold text-sm">{(i.price * i.quantity).toLocaleString()}đ</span>
-                                        {editingOrderId === order.id && order.status !== 'completed' && (
                                           <button
-                                            onClick={() => removeOrderItem(order.id, i.id)}
-                                            className="w-7 h-7 bg-red-100 text-red-500 rounded-lg flex items-center justify-center border border-red-200 hover:bg-red-200 active:scale-95 transition-all"
+                                            onClick={() => updateOrderItemQuantity(order.id, i.id, 1)}
+                                            className="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center border border-emerald-200 hover:bg-emerald-200 active:scale-95 transition-all"
                                           >
-                                            <X size={14} strokeWidth={2.5} />
+                                            <Plus size={14} strokeWidth={2.5} />
                                           </button>
-                                        )}
-                                      </div>
-                                    </div>
-                                    {editingOrderId === order.id && order.status !== 'completed' ? (
-                                      <div className="ml-9 mt-2">
-                                        <input
-                                          type="text"
-                                          defaultValue={i.note || ''}
-                                          placeholder="Thêm ghi chú..."
-                                          onBlur={(e) => {
-                                            if (e.target.value !== (i.note || '')) {
-                                              updateOrderItemNote(order.id, i.id, e.target.value);
-                                            }
-                                          }}
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                              e.currentTarget.blur();
-                                            }
-                                          }}
-                                          className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                                        />
-                                      </div>
-                                    ) : (
-                                      i.note && (
-                                        <div className="flex items-start gap-2.5 ml-9 text-sm text-indigo-700 bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200">
-                                          <MessageSquare size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
-                                          <span className="italic font-medium">{i.note}</span>
                                         </div>
-                                      )
-                                    )}
-                                  </div>
-                                ))}
-
-                                {/* Add new item section when editing */}
-                                {editingOrderId === order.id && order.status !== 'completed' && (
-                                  <div className="pt-3 mt-3 border-t border-indigo-200">
-                                    <p className="text-xs text-gray-500 font-bold mb-2 flex items-center gap-1.5">
-                                      <Plus size={12} /> Thêm món mới
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                                      {MENU_ITEMS.map(menuItem => (
+                                      ) : (
+                                        <span className="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-sm font-black">
+                                          {i.quantity}x
+                                        </span>
+                                      )}
+                                      <span className="text-base">{i.name}</span>
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-indigo-700 font-bold text-sm">{(i.price * i.quantity).toLocaleString()}đ</span>
+                                      {editingOrderId === order.id && order.status !== 'completed' && (
                                         <button
-                                          key={menuItem.id}
-                                          onClick={() => addItemToOrder(order.id, menuItem)}
-                                          className="bg-white hover:bg-indigo-50 border border-gray-200 hover:border-indigo-300 rounded-xl p-2.5 text-left transition-all active:scale-95"
+                                          onClick={() => removeOrderItem(order.id, i.id)}
+                                          className="w-7 h-7 bg-red-100 text-red-500 rounded-lg flex items-center justify-center border border-red-200 hover:bg-red-200 active:scale-95 transition-all"
                                         >
-                                          <p className="text-gray-800 font-bold text-xs mb-0.5">{menuItem.name}</p>
-                                          <p className="text-indigo-600 font-black text-xs">{menuItem.price.toLocaleString()}đ</p>
+                                          <X size={14} strokeWidth={2.5} />
                                         </button>
-                                      ))}
+                                      )}
                                     </div>
                                   </div>
-                                )}
-                              </div>
+                                  {editingOrderId === order.id && order.status !== 'completed' ? (
+                                    <div className="ml-9 mt-2">
+                                      <input
+                                        type="text"
+                                        defaultValue={i.note || ''}
+                                        placeholder="Thêm ghi chú..."
+                                        onBlur={(e) => {
+                                          if (e.target.value !== (i.note || '')) {
+                                            updateOrderItemNote(order.id, i.id, e.target.value);
+                                          }
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.currentTarget.blur();
+                                          }
+                                        }}
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                                      />
+                                    </div>
+                                  ) : (
+                                    i.note && (
+                                      <div className="flex items-start gap-2.5 ml-9 text-sm text-indigo-700 bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200">
+                                        <MessageSquare size={16} className="mt-0.5 flex-shrink-0 text-indigo-500" />
+                                        <span className="italic font-medium">{i.note}</span>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              ))}
 
-                              <div className="flex gap-3">
-                                {order.status !== 'completed' && (
-                                  <button
-                                    onClick={() => setEditingOrderId(editingOrderId === order.id ? null : order.id)}
-                                    className={`px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all ${editingOrderId === order.id
-                                      ? 'bg-indigo-100 border border-indigo-300 text-indigo-600'
-                                      : 'bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200'
-                                      }`}
-                                  >
-                                    {editingOrderId === order.id ? '✓ Xong' : <Edit3 size={18} />}
-                                  </button>
-                                )}
-                                {order.status === 'pending' && (
-                                  <>
-                                    <button
-                                      onClick={() => updateOrderStatus(order.id, 'completed')}
-                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
-                                    >
-                                      <CheckCircle size={18} />
-                                      <span>Hoàn tất đơn</span>
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        if (confirm('Bạn có chắc muốn hủy đơn này không?')) {
-                                          import('./services/firebaseService').then(({ deleteOrder }) => {
-                                            deleteOrder(order.firebaseId!)
-                                              .then(() => showToast('Đã hủy đơn hàng', 'success'))
-                                              .catch(() => showToast('Lỗi khi hủy đơn', 'error'));
-                                          });
-                                        }
-                                      }}
-                                      className="px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                                    >
-                                      <X size={18} />
-                                    </button>
-                                  </>
-                                )}
-                                {order.status === 'preparing' && (
+                              {/* Add new item section when editing */}
+                              {editingOrderId === order.id && order.status !== 'completed' && (
+                                <div className="pt-3 mt-3 border-t border-indigo-200">
+                                  <p className="text-xs text-gray-500 font-bold mb-2 flex items-center gap-1.5">
+                                    <Plus size={12} /> Thêm món mới
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                                    {MENU_ITEMS.map(menuItem => (
+                                      <button
+                                        key={menuItem.id}
+                                        onClick={() => addItemToOrder(order.id, menuItem)}
+                                        className="bg-white hover:bg-indigo-50 border border-gray-200 hover:border-indigo-300 rounded-xl p-2.5 text-left transition-all active:scale-95"
+                                      >
+                                        <p className="text-gray-800 font-bold text-xs mb-0.5">{menuItem.name}</p>
+                                        <p className="text-indigo-600 font-black text-xs">{menuItem.price.toLocaleString()}đ</p>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex gap-3">
+                              {order.status !== 'completed' && (
+                                <button
+                                  onClick={() => setEditingOrderId(editingOrderId === order.id ? null : order.id)}
+                                  className={`px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all ${editingOrderId === order.id
+                                    ? 'bg-indigo-100 border border-indigo-300 text-indigo-600'
+                                    : 'bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200'
+                                    }`}
+                                >
+                                  {editingOrderId === order.id ? '✓ Xong' : <Edit3 size={18} />}
+                                </button>
+                              )}
+                              {order.status === 'pending' && (
+                                <>
                                   <button
                                     onClick={() => updateOrderStatus(order.id, 'completed')}
-                                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md"
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
                                   >
-                                    ✓ Đã pha xong
+                                    <CheckCircle size={18} />
+                                    <span>Hoàn tất đơn</span>
                                   </button>
-                                )}
-                                {order.status === 'completed' && (
-                                  <>
-                                    <div className="flex-1 text-emerald-600 font-bold text-sm text-center py-3 rounded-xl border border-emerald-200 flex items-center justify-center gap-2 bg-emerald-50">
-                                      <CheckCircle size={18} /> Đã giao
-                                    </div>
-                                    <button
-                                      onClick={() => openAddToOrder(order.id)}
-                                      className="px-5 py-3 bg-indigo-50 border border-indigo-300 rounded-xl text-indigo-700 font-bold text-sm hover:bg-indigo-100 active:scale-95 transition-all"
-                                    >
-                                      + Thêm món
-                                    </button>
-                                  </>
-                                )}
-                              </div>
+                                  <button
+                                    onClick={() => {
+                                      if (confirm('Bạn có chắc muốn hủy đơn này không?')) {
+                                        import('./services/firebaseService').then(({ deleteOrder }) => {
+                                          deleteOrder(order.firebaseId!)
+                                            .then(() => showToast('Đã hủy đơn hàng', 'success'))
+                                            .catch(() => showToast('Lỗi khi hủy đơn', 'error'));
+                                        });
+                                      }
+                                    }}
+                                    className="px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                                  >
+                                    <X size={18} />
+                                  </button>
+                                </>
+                              )}
+                              {order.status === 'preparing' && (
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'completed')}
+                                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md"
+                                >
+                                  ✓ Đã pha xong
+                                </button>
+                              )}
+                              {order.status === 'completed' && (
+                                <>
+                                  <div className="flex-1 text-emerald-600 font-bold text-sm text-center py-3 rounded-xl border border-emerald-200 flex items-center justify-center gap-2 bg-emerald-50">
+                                    <CheckCircle size={18} /> Đã giao
+                                  </div>
+                                  <button
+                                    onClick={() => openAddToOrder(order.id)}
+                                    className="px-5 py-3 bg-indigo-50 border border-indigo-300 rounded-xl text-indigo-700 font-bold text-sm hover:bg-indigo-100 active:scale-95 transition-all"
+                                  >
+                                    + Thêm món
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </div>
-                        ));
+                        </div>
+                      ));
                     })()}
                   </>
                 )}
