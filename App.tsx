@@ -544,7 +544,7 @@ export default function App() {
               <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Mỳ Sữa Hạt</h1>
+              <h1 className="text-xl font-bold text-gray-900">Mỳ Sữa Hạt - Coffee & Tea</h1>
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <Store size={11} />
                 207 Ngô Quyền • Bình Long
@@ -564,7 +564,7 @@ export default function App() {
             <div className="space-y-6">
               {/* Clean Search */}
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -trangray-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Tìm kiếm đồ uống..."
@@ -719,7 +719,7 @@ export default function App() {
                     : 'text-gray-600 hover:bg-gray-50'
                     }`}
                 >
-                  🔥 Cần pha ({orders.filter(o => o.status !== 'completed').length})
+                  Đơn mới ({orders.filter(o => o.status !== 'completed').length})
                 </button>
                 <button
                   onClick={() => setAdminTab('completed')}
@@ -728,7 +728,7 @@ export default function App() {
                     : 'text-gray-600 hover:bg-gray-50'
                     }`}
                 >
-                  ✓ Lịch sử ({orders.filter(o => o.status === 'completed').length})
+                  Đã xong ({orders.filter(o => o.status === 'completed').length})
                 </button>
                 <button
                   onClick={() => setAdminTab('revenue')}
@@ -737,7 +737,7 @@ export default function App() {
                     : 'text-gray-600 hover:bg-gray-50'
                     }`}
                 >
-                  💰 Doanh thu
+                  Doanh thu
                 </button>
               </div>
 
@@ -1109,10 +1109,11 @@ export default function App() {
                                 {order.status === 'pending' && (
                                   <>
                                     <button
-                                      onClick={() => updateOrderStatus(order.id, 'preparing')}
-                                      className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md"
+                                      onClick={() => updateOrderStatus(order.id, 'completed')}
+                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
                                     >
-                                      Bắt đầu pha chế
+                                      <CheckCircle size={18} />
+                                      <span>Hoàn tất đơn</span>
                                     </button>
                                     <button
                                       onClick={() => {
@@ -1260,7 +1261,7 @@ export default function App() {
 
                 <div className="space-y-4 pt-4 border-t border-gray-200">
                   <div className="relative group">
-                    <User className="absolute left-4 top-1/2 -trangray-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
                     <input
                       type="text"
                       placeholder="Tên hoặc số bàn..."
@@ -1542,7 +1543,7 @@ export default function App() {
             }`}
         >
           {view === 'customer' && (
-            <div className="absolute -top-4 left-1/2 -trangray-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
           )}
           <ShoppingCart size={24} strokeWidth={view === 'customer' ? 2.5 : 2} />
           <span className="text-xs font-bold">Thực đơn</span>
@@ -1556,7 +1557,7 @@ export default function App() {
             }`}
         >
           {view === 'admin' && (
-            <div className="absolute -top-4 left-1/2 -trangray-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
           )}
           <ClipboardList size={24} strokeWidth={view === 'admin' ? 2.5 : 2} />
           <span className="text-xs font-bold">Quản lý</span>
