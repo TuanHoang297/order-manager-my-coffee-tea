@@ -501,7 +501,6 @@ export default function App() {
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="bg-gradient-to-r from-amber-500 to-orange-600 text-black px-2 py-0.5 rounded-lg text-xs font-black shadow-lg shadow-amber-500/30">#{order.id}</span>
                             <h4 className="font-black text-lg text-white">{order.customerName}</h4>
                             {order.status === 'preparing' && (
                               <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-lg text-xs font-bold border border-blue-500/30 animate-pulse">
