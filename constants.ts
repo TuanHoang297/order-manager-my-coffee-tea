@@ -16,6 +16,8 @@ export const MENU_ITEMS: MenuItem[] = [
   // Trà Sữa
   { id: '8', name: 'Trà Sữa Ô Long Lài', price: 30000, category: Category.MILK_TEA },
   { id: '9', name: 'Trà Sữa Gạo Rang', price: 30000, category: Category.MILK_TEA },
+  { id: '14', name: 'Trà Lipton', price: 30000, category: Category.MILK_TEA },
+  { id: '15', name: 'Trà Chanh Xí Muội', price: 30000, category: Category.MILK_TEA },
   
   // Healthy
   { id: '10', name: 'Đậu Nành Mè Đen', price: 20000, category: Category.HEALTHY },
