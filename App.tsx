@@ -22,7 +22,8 @@ import {
   MessageSquare,
   Edit3,
   ChevronLeft,
-  CalendarDays
+  CalendarDays,
+  BarChart3
 } from 'lucide-react';
 import { MenuItem, Category, Order, OrderItem } from './types';
 import { MENU_ITEMS } from './constants';
@@ -700,46 +701,51 @@ export default function App() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-indigo-600 rounded-xl text-white">
-                  <ReceiptText size={24} />
+              {adminTab === 'revenue' ? (
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-600/20">
+                    <BarChart3 size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Báo cáo doanh thu</h2>
+                    <p className="text-sm text-gray-500">Tổng quan tình hình kinh doanh</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Quản lý đơn hàng</h2>
-                  <p className="text-sm text-gray-500">Theo dõi và xử lý đơn</p>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-600 rounded-xl text-white">
+                    <ReceiptText size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Quản lý đơn hàng</h2>
+                    <p className="text-sm text-gray-500">Theo dõi và xử lý đơn</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Simple Tabs */}
-              <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
-                <button
-                  onClick={() => setAdminTab('active')}
-                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'active'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                >
-                  Đơn mới ({orders.filter(o => o.status !== 'completed').length})
-                </button>
-                <button
-                  onClick={() => setAdminTab('completed')}
-                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'completed'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                >
-                  Đã xong ({orders.filter(o => o.status === 'completed').length})
-                </button>
-                <button
-                  onClick={() => setAdminTab('revenue')}
-                  className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'revenue'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                >
-                  Doanh thu
-                </button>
-              </div>
+              {/* Simple Tabs - Hidden in Revenue Mode */}
+              {adminTab !== 'revenue' && (
+                <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
+                  <button
+                    onClick={() => setAdminTab('active')}
+                    className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'active'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    Đơn mới ({orders.filter(o => o.status !== 'completed').length})
+                  </button>
+                  <button
+                    onClick={() => setAdminTab('completed')}
+                    className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'completed'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    Đã xong ({orders.filter(o => o.status === 'completed').length})
+                  </button>
+                </div>
+              )}
 
               <div>
                 {adminTab === 'revenue' ? (
@@ -786,7 +792,7 @@ export default function App() {
                       return (
                         <>
                           {/* Date Navigator */}
-                          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
+                          <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center justify-between mb-4">
                             <button onClick={() => changeDate(-1)} className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 active:scale-95 transition-all">
                               <ChevronLeft size={20} strokeWidth={2.5} />
                             </button>
@@ -801,43 +807,43 @@ export default function App() {
                           </div>
 
                           {/* Summary Cards */}
-                          <div className="grid grid-cols-3 gap-2">
-                            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-center">
-                              <p className="text-indigo-800 text-xs font-semibold mb-1">{isToday ? 'Hôm nay' : 'Ngày này'}</p>
-                              <p className="text-xl font-black text-indigo-700">{(dayRevenue / 1000).toFixed(0)}K</p>
-                              <p className="text-xs text-indigo-600 mt-0.5">{dayOrders.length} đơn</p>
+                          <div className="grid grid-cols-3 gap-3 mb-4">
+                            <div className="bg-indigo-600 rounded-xl p-3 text-center text-white shadow-lg shadow-indigo-600/20">
+                              <p className="text-indigo-100 text-xs font-semibold mb-1">{isToday ? 'Hôm nay' : 'Ngày này'}</p>
+                              <p className="text-xl font-black">{(dayRevenue / 1000).toFixed(0)}K</p>
+                              <p className="text-xs text-indigo-100 mt-0.5">{dayOrders.length} đơn</p>
                             </div>
                             <div className="bg-white border border-gray-200 rounded-xl p-3 text-center">
-                              <p className="text-gray-600 text-xs font-semibold mb-1">Tháng này</p>
+                              <p className="text-gray-500 text-xs font-semibold mb-1">Tháng này</p>
                               <p className="text-xl font-bold text-gray-900">{(stats.month.revenue / 1000).toFixed(0)}K</p>
-                              <p className="text-xs text-gray-500 mt-0.5">{stats.month.orders} đơn</p>
+                              <p className="text-xs text-gray-400 mt-0.5">{stats.month.orders} đơn</p>
                             </div>
                             <div className="bg-white border border-gray-200 rounded-xl p-3 text-center">
-                              <p className="text-gray-600 text-xs font-semibold mb-1">Tổng</p>
+                              <p className="text-gray-500 text-xs font-semibold mb-1">Tổng</p>
                               <p className="text-xl font-bold text-gray-900">{(stats.total.revenue / 1000).toFixed(0)}K</p>
-                              <p className="text-xs text-gray-500 mt-0.5">{stats.total.orders} đơn</p>
+                              <p className="text-xs text-gray-400 mt-0.5">{stats.total.orders} đơn</p>
                             </div>
                           </div>
 
                           {/* Day Average */}
                           {dayOrders.length > 0 && (
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
-                                  <CalendarDays size={18} className="text-emerald-600" />
+                                <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+                                  <CalendarDays size={18} className="text-indigo-600" />
                                 </div>
                                 <div>
-                                  <p className="text-sm font-semibold text-gray-900">TB / đơn</p>
+                                  <p className="text-sm font-semibold text-gray-900">Trung bình / đơn</p>
                                   <p className="text-xs text-gray-500">{dayOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0)} ly tổng</p>
                                 </div>
                               </div>
-                              <p className="text-lg font-black text-emerald-600">{Math.round(dayRevenue / dayOrders.length).toLocaleString()}đ</p>
+                              <p className="text-lg font-black text-indigo-600">{Math.round(dayRevenue / dayOrders.length).toLocaleString()}đ</p>
                             </div>
                           )}
 
                           {/* Top Items of the Day */}
                           {dayTopItems.length > 0 && (
-                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4">
                               <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                                 <Flame className="text-indigo-500" size={16} />
                                 Bán chạy {isToday ? 'hôm nay' : 'ngày này'}
@@ -845,7 +851,7 @@ export default function App() {
                               <div className="space-y-2">
                                 {dayTopItems.slice(0, 5).map((item, index) => (
                                   <div key={item.name} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                                    <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${index === 0 ? 'bg-indigo-500 text-white' : index === 1 ? 'bg-indigo-400 text-white' : index === 2 ? 'bg-indigo-300 text-indigo-800' : 'bg-gray-200 text-gray-600'}`}>
+                                    <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${index === 0 ? 'bg-indigo-500 text-white' : index === 1 ? 'bg-indigo-400 text-white' : index === 2 ? 'bg-indigo-300 text-white' : 'bg-gray-200 text-gray-600'}`}>
                                       {index + 1}
                                     </div>
                                     <p className="flex-1 text-gray-900 font-semibold text-sm">{item.name}</p>
@@ -860,7 +866,7 @@ export default function App() {
                           )}
 
                           {/* Daily Order List */}
-                          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-4">
                             <div className="p-4 border-b border-gray-100">
                               <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                 <ReceiptText size={16} className="text-gray-600" />
@@ -967,12 +973,12 @@ export default function App() {
 
                       return sortedOrders.map(order => (
                         <div key={order.id} className={`bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${order.id === firstOrderId && adminTab === 'active'
-                            ? 'border-blue-500 ring-4 ring-blue-100 shadow-md scale-[1.01] z-10'
-                            : isOrderDelayed(order.timestamp, order.status)
-                              ? 'border-red-300 ring-2 ring-red-100' :
-                              order.status === 'completed' ? 'border-green-200' :
-                                order.status === 'preparing' ? 'border-indigo-300 ring-2 ring-indigo-100' :
-                                  'border-gray-200'
+                          ? 'border-blue-500 ring-4 ring-blue-100 shadow-md scale-[1.01] z-10'
+                          : isOrderDelayed(order.timestamp, order.status)
+                            ? 'border-red-300 ring-2 ring-red-100' :
+                            order.status === 'completed' ? 'border-green-200' :
+                              order.status === 'preparing' ? 'border-indigo-300 ring-2 ring-indigo-100' :
+                                'border-gray-200'
                           }`}>
                           <div className="p-4">
                             <div className="flex justify-between items-start mb-4">
@@ -1545,7 +1551,7 @@ export default function App() {
       )}
 
       {/* Enhanced Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[180] bg-white/90 backdrop-blur-xl border-t border-indigo-100 px-10 py-4 flex justify-around items-center shadow-lg shadow-indigo-900/5">
+      <nav className="fixed bottom-0 left-0 right-0 z-[180] bg-white/90 backdrop-blur-xl border-t border-indigo-100 px-6 py-4 flex justify-around items-center shadow-lg shadow-indigo-900/5">
         <button
           onClick={() => setView('customer')}
           className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'customer' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
@@ -1561,15 +1567,35 @@ export default function App() {
         <div className="w-px h-8 bg-gray-200"></div>
 
         <button
-          onClick={() => setView('admin')}
-          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+          onClick={() => {
+            setView('admin');
+            if (adminTab === 'revenue') setAdminTab('active');
+          }}
+          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' && adminTab !== 'revenue' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
             }`}
         >
-          {view === 'admin' && (
+          {view === 'admin' && adminTab !== 'revenue' && (
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
           )}
-          <ClipboardList size={24} strokeWidth={view === 'admin' ? 2.5 : 2} />
+          <ClipboardList size={24} strokeWidth={view === 'admin' && adminTab !== 'revenue' ? 2.5 : 2} />
           <span className="text-xs font-bold">Quản lý</span>
+        </button>
+
+        <div className="w-px h-8 bg-gray-200"></div>
+
+        <button
+          onClick={() => {
+            setView('admin');
+            setAdminTab('revenue');
+          }}
+          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' && adminTab === 'revenue' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+            }`}
+        >
+          {view === 'admin' && adminTab === 'revenue' && (
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
+          )}
+          <BarChart3 size={24} strokeWidth={view === 'admin' && adminTab === 'revenue' ? 2.5 : 2} />
+          <span className="text-xs font-bold">Doanh thu</span>
         </button>
       </nav>
 
