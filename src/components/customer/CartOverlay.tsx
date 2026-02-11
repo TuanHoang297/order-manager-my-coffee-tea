@@ -122,6 +122,7 @@ export const CartOverlay: React.FC<CartOverlayProps> = ({
                     item={item}
                     onUpdateQuantity={(delta) => onUpdateQuantity(index, delta)}
                     onUpdateNote={(note) => onUpdateNote(index, note)}
+                    onRemove={() => onUpdateQuantity(index, -item.quantity)}
                   />
                 ))
               )}
