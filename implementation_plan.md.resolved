@@ -1,0 +1,523 @@
+# Kế Hoạch Tái Cấu Trúc Order Manager - Chuẩn Doanh Nghiệp
+
+## Mô tả
+Hiện tại dự án có file [App.tsx](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx) **1631 dòng** quá lớn, khó bảo trì và nâng cấp. Kế hoạch này sẽ tách nhỏ thành các module, components, hooks theo chuẩn doanh nghiệp để:
+- **Dễ bảo trì**: Mỗi file tập trung vào một chức năng cụ thể
+- **Dễ mở rộng**: Thêm tính năng mới không ảnh hưởng code cũ
+- **Dễ test**: Từng module độc lập có thể test riêng
+- **Tăng hiệu suất**: Code splitting, lazy loading components
+- **Tái sử dụng**: Components có thể dùng lại ở nhiều nơi
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Cấu trúc thư mục mới**
+> 
+> Đây là cấu trúc thư mục được đề xuất. Vui lòng review và cho feedback trước khi bắt đầu refactor:
+>
+> ```
+> src/
+> ├── components/          # UI Components
+> │   ├── layout/
+> │   │   ├── Header.tsx
+> │   │   ├── BottomNavigation.tsx
+> │   │   └── Toast.tsx
+> │   ├── customer/
+> │   │   ├── SearchBar.tsx
+> │   │   ├── CategoryFilter.tsx
+> │   │   ├── MenuCard.tsx
+> │   │   ├── MenuList.tsx
+> │   │   ├── CartButton.tsx
+> │   │   ├── CartOverlay.tsx
+> │   │   └── CartItem.tsx
+> │   ├── admin/
+> │   │   ├── OrderCard.tsx
+> │   │   ├── OrderList.tsx
+> │   │   ├── AddToOrderModal.tsx
+> │   │   ├── RevenueView.tsx
+> │   │   ├── RevenueStats.tsx
+> │   │   └── TopItems.tsx
+> │   └── common/
+> │       ├── NoteInput.tsx
+> │       └── QuantitySelector.tsx
+> ├── hooks/              # Custom React Hooks
+> │   ├── useCart.ts
+> │   ├── useOrders.ts
+> │   ├── useToast.ts
+> │   ├── useNotification.ts
+> │   └── useAdminTabs.ts
+> ├── services/           # API & External Services
+> │   ├── firebase/
+> │   │   ├── orderService.ts
+> │   │   └── config.ts (rename từ firebase.config.ts)
+> │   └── gemini/
+> │       └── geminiService.ts
+> ├── utils/              # Helper Functions
+> │   ├── dateTime.ts
+> │   ├── revenue.ts
+> │   ├── notification.ts
+> │   └── order.ts
+> ├── types/              # TypeScript Types
+> │   └── index.ts (đã có types.ts, sẽ rename)
+> ├── constants/          # Constants & Config
+> │   └── index.ts (đã có constants.ts, sẽ rename)
+> ├── App.tsx            # Main App (chỉ còn routing & layout logic)
+> └── index.tsx          # Entry point
+> ```
+
+> [!WARNING]
+> **Breaking Changes**
+> 
+> - Tất cả imports sẽ thay đổi do cấu trúc thư mục mới
+> - Cần rebuild lại dự án sau khi refactor
+> - TypeScript có thể báo lỗi tạm thời trong quá trình refactor (sẽ fix dần)
+
+---
+
+## Proposed Changes
+
+### Component Layer
+
+#### [NEW] [Header.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/layout/Header.tsx)
+Tách header từ [App.tsx](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx) (dòng 541-560):
+- Logo và tên quán
+- Địa chỉ
+- Trạng thái mở/đóng cửa
+- Props: `storeName`, `address`, `isOpen`
+
+#### [NEW] [BottomNavigation.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/layout/BottomNavigation.tsx)
+Tách bottom navigation (dòng 1553-1600):
+- 3 tabs: Thực đơn, Quản lý, Doanh thu
+- Active state management
+- Props: `activeView`, `adminTab`, `onViewChange`, `onAdminTabChange`
+
+#### [NEW] [Toast.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/layout/Toast.tsx)
+Tách toast notification system (dòng 63-78, 1611-1627):
+- Toast container và toast items
+- Auto dismiss sau 3s
+- 3 loại: success, error, info
+- Props: `toasts`, `onDismiss` (từ useToast hook)
+
+---
+
+#### [NEW] [SearchBar.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/SearchBar.tsx)
+Tách search bar (dòng 567-576):
+- Input với icon Search
+- Debounce search (tùy chọn tối ưu)
+- Props: `value`, `onChange`, `placeholder`
+
+#### [NEW] [CategoryFilter.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/CategoryFilter.tsx)
+Tách category filter (dòng 578-593):
+- Danh sách categories với icon
+- Active state
+- Horizontal scroll
+- Props: `categories`, `activeCategory`, `onCategoryChange`
+
+#### [NEW] [MenuCard.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/MenuCard.tsx)
+Tách menu item card (dòng 615-695):
+- Display món ăn với tên, giá
+- Quantity selector khi đã thêm vào giỏ
+- Note input inline
+- Props: `item`, `cartItem`, `onAdd`, `onUpdateQuantity`, `onUpdateNote`
+
+#### [NEW] [MenuList.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/MenuList.tsx)
+Nhóm menu cards theo category (dòng 596-701):
+- Group items by category
+- Sticky category headers
+- Grid layout
+- Props: `menuItems`, `cart`, `cartHandlers`
+
+#### [NEW] [CartButton.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/CartButton.tsx)
+Floating cart button (dòng 1320-1345):
+- Hiển thị số lượng và tổng tiền
+- Animation khi có items
+- Props: `cart`, `total`, `onClick`
+
+#### [NEW] [CartOverlay.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/CartOverlay.tsx)
+Cart modal/overlay (dòng 1184-1318):
+- Full cart UI với backdrop
+- Customer name input
+- Order success state
+- Props: `cart`, `isOpen`, `onClose`, `onPlaceOrder`, `cartHandlers`
+
+#### [NEW] [CartItem.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/customer/CartItem.tsx)
+Single cart item (dòng 1216-1274):
+- Item info với quantity selector
+- Note input
+- Props: `item`, `onUpdateQuantity`, `onUpdateNote`, `noteHandlers`
+
+---
+
+#### [NEW] [OrderCard.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/OrderCard.tsx)
+Admin order card (dòng 974-1173):
+- Hiển thị thông tin đơn hàng
+- Edit mode cho items
+- Status buttons (pending, preparing, completed)
+- Add items to order
+- Props: `order`, `isEditing`, `isFirstOrder`, `onStatusChange`, `onEditToggle`, `orderItemHandlers`
+
+#### [NEW] [OrderList.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/OrderList.tsx)
+List of orders with filtering và sorting (dòng 939-1176):
+- Filter by status (active/completed)
+- Sort logic
+- Empty state
+- Props: `orders`, `activeTab`, `orderHandlers`
+
+#### [NEW] [AddToOrderModal.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/AddToOrderModal.tsx)
+Modal thêm món vào đơn đã hoàn thành (dòng 1347-1551):
+- Menu selection
+- Additional cart
+- Confirm add items
+- Props: `orderId`, `isOpen`, `onClose`, `onConfirm`
+
+#### [NEW] [RevenueView.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/RevenueView.tsx)
+Revenue dashboard main view (dòng 751-937):
+- Date navigation
+- Revenue cards (day/week/month/total)
+- Day details
+- Props: `orders`, `selectedDate`, `onDateChange`
+
+#### [NEW] [RevenueStats.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/RevenueStats.tsx)
+Revenue statistics cards (dòng 810-826):
+- Today/Week/Month/Total stats
+- Props: `stats`
+
+#### [NEW] [TopItems.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/admin/TopItems.tsx)
+Top selling items list (dòng 845-866, 914-933):
+- Ranked list với medals
+- Show count và revenue
+- Props: `items`, `title`
+
+---
+
+#### [NEW] [NoteInput.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/common/NoteInput.tsx)
+Reusable note input component:
+- Inline editing
+- Click to edit, blur/enter to save
+- Props: `value`, `onSave`, `placeholder`, `isEditing`, `onEditToggle`
+
+#### [NEW] [QuantitySelector.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/components/common/QuantitySelector.tsx)
+Reusable quantity +/- selector:
+- Plus/Minus buttons
+- Display quantity
+- Props: `quantity`, `onIncrease`, `onDecrease`
+
+---
+
+### Hooks Layer
+
+#### [NEW] [useCart.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/hooks/useCart.ts)
+Custom hook để quản lý cart state và logic:
+- [addToCart(item)](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#161-171)
+- [updateQuantity(id, delta)](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#172-187)
+- [updateNote(id, note)](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#188-193)
+- `clearCart()`
+- `cartTotal` (computed)
+- Return: `{ cart, addToCart, updateQuantity, updateNote, clearCart, cartTotal }`
+
+#### [NEW] [useOrders.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/hooks/useOrders.ts)
+Custom hook để quản lý orders với Firebase realtime:
+- Subscribe to Firebase orders (dòng 119-144)
+- `placeOrder(order)`
+- [updateOrderStatus(id, status)](file:///c:/Users/tuanc/Downloads/order-manager/services/firebaseService.ts#40-60)
+- [updateOrderItems(id, items)](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#385-398)
+- [deleteOrder(id)](file:///c:/Users/tuanc/Downloads/order-manager/services/firebaseService.ts#61-66)
+- Return: `{ orders, placeOrder, updateOrderStatus, updateOrderItems, deleteOrder, isLoading }`
+
+#### [NEW] [useToast.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/hooks/useToast.ts)
+Custom hook cho toast notifications:
+- [showToast(message, type)](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#71-78)
+- Auto-dismiss logic
+- Return: `{ toasts, showToast }`
+
+#### [NEW] [useNotification.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/hooks/useNotification.ts)
+Custom hook cho notification âm thanh + browser:
+- Request permission
+- Play notification sound (dòng 81-117)
+- Show browser notification
+- Return: `{ playNotification, requestPermission, hasPermission }`
+
+#### [NEW] [useAdminTabs.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/hooks/useAdminTabs.ts)
+Custom hook quản lý admin tabs state:
+- Active tab state
+- Revenue date state
+- Return: `{ adminTab, setAdminTab, revenueDate, setRevenueDate }`
+
+---
+
+### Utilities Layer
+
+#### [NEW] [dateTime.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/utils/dateTime.ts)
+Helper functions cho date/time (extract từ dòng 471-484, 781-783):
+- [getTimeAgo(timestamp: Date): string](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#471-485)
+- [formatDate(date: Date): string](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#781-785)
+- `getDateRange(type: 'today' | 'week' | 'month'): { start: Date, end: Date }`
+
+#### [NEW] [revenue.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/utils/revenue.ts)
+Revenue calculation utilities (extract từ dòng 486-526):
+- `calculateRevenueStats(orders: Order[])`
+- `getTopSellingItems(orders: Order[], limit?: number)`
+- `filterOrdersByDate(orders: Order[], startDate: Date, endDate?: Date)`
+
+#### [NEW] [notification.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/utils/notification.ts)
+Notification sound generation (extract từ dòng 81-117):
+- [playNotificationSound(): Promise<void>](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#80-118)
+- `generateBeepSound(frequency, duration): AudioBuffer`
+
+#### [NEW] [order.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/utils/order.ts)
+Order helper functions (extract từ dòng 528-536):
+- [isOrderDelayed(timestamp: Date, status: string, threshold?: number): boolean](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx#528-537)
+- `sortOrders(orders: Order[], type: 'active' | 'completed'): Order[]`
+- `generateOrderId(): string`
+
+---
+
+### Services Layer
+
+#### [MODIFY] [config.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/services/firebase/config.ts)
+Rename [firebase.config.ts](file:///c:/Users/tuanc/Downloads/order-manager/firebase.config.ts) → `src/services/firebase/config.ts`:
+- Giữ nguyên nội dung
+- Chỉ di chuyển vị trí
+
+#### [MODIFY] [orderService.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/services/firebase/orderService.ts)
+Rename [services/firebaseService.ts](file:///c:/Users/tuanc/Downloads/order-manager/services/firebaseService.ts) → `src/services/firebase/orderService.ts`:
+- Giữ nguyên tất cả functions
+- Update import path của config
+
+#### [MODIFY] [geminiService.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/services/gemini/geminiService.ts)
+Di chuyển [services/geminiService.ts](file:///c:/Users/tuanc/Downloads/order-manager/services/geminiService.ts) → `src/services/gemini/geminiService.ts`:
+- Giữ nguyên nội dung
+- Chỉ di chuyển vị trí
+
+---
+
+### Types & Constants
+
+#### [MODIFY] [index.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/types/index.ts)
+Rename [types.ts](file:///c:/Users/tuanc/Downloads/order-manager/types.ts) → `src/types/index.ts`:
+- Giữ nguyên tất cả types
+- Export all types
+
+#### [MODIFY] [index.ts](file:///c:/Users/tuanc/Downloads/order-manager/src/constants/index.ts)
+Rename [constants.ts](file:///c:/Users/tuanc/Downloads/order-manager/constants.ts) → `src/constants/index.ts`:
+- Giữ nguyên MENU_ITEMS
+- Export all constants
+
+---
+
+### Main App
+
+#### [MODIFY] [App.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/App.tsx)
+Refactor [App.tsx](file:///c:/Users/tuanc/Downloads/order-manager/App.tsx) từ **1631 dòng** xuống còn **~150 dòng**:
+- Import all components và hooks
+- Chỉ giữ lại:
+  - View routing logic (customer/admin)
+  - Layout structure
+  - Compose components
+- Remove tất cả business logic → chuyển vào hooks
+- Remove tất cả UI components → chuyển vào components folder
+
+#### [MODIFY] [index.tsx](file:///c:/Users/tuanc/Downloads/order-manager/src/index.tsx)
+Di chuyển [index.tsx](file:///c:/Users/tuanc/Downloads/order-manager/index.tsx) → `src/index.tsx`:
+- Update import path của App
+- Giữ nguyên logic
+
+---
+
+### Build Configuration
+
+#### [MODIFY] [tsconfig.json](file:///c:/Users/tuanc/Downloads/order-manager/tsconfig.json)
+Thêm path aliases để import dễ hơn:
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"],
+      "@constants/*": ["src/constants/*"]
+    }
+  }
+}
+```
+
+#### [MODIFY] [vite.config.ts](file:///c:/Users/tuanc/Downloads/order-manager/vite.config.ts)
+Thêm resolve aliases tương ứng:
+```ts
+resolve: {
+  alias: {
+    '@components': '/src/components',
+    '@hooks': '/src/hooks',
+    '@services': '/src/services',
+    '@utils': '/src/utils',
+    '@types': '/src/types',
+    '@constants': '/src/constants'
+  }
+}
+```
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+Hiện tại dự án **chưa có test suite**. Sau khi refactor, sẽ verify bằng:
+
+1. **Build Test**
+   ```bash
+   cd c:\Users\tuanc\Downloads\order-manager
+   npm run build
+   ```
+   ✅ Build phải thành công không có lỗi TypeScript
+
+2. **Dev Server Test**
+   ```bash
+   npm run dev
+   ```
+   ✅ Server phải chạy thành công tại http://localhost:5173
+
+### Manual Verification
+
+#### Test Case 1: Customer Flow - Đặt hàng
+1. Mở browser tại `http://localhost:5173`
+2. Kiểm tra Header hiển thị đúng logo, tên quán, địa chỉ
+3. Thử search món: gõ "cà phê" → kết quả lọc đúng
+4. Thử lọc category: click "Cà Phê" → chỉ hiện món cà phê
+5. Thêm món vào giỏ: click món bất kỳ → hiện quantity selector
+6. Tăng/giảm số lượng: click +/- → số lượng update
+7. Thêm ghi chú: click "Thêm ghi chú" → nhập text → blur → lưu thành công
+8. Click floating cart button → mở CartOverlay
+9. Nhập tên khách: gõ "Khách A"
+10. Click "Xác nhận đặt hàng" → hiển thị success animation
+11. Chờ 3s → overlay đóng, giỏ hàng reset về rỗng
+
+**Expected**: Tất cả tính năng hoạt động như cũ, không có lỗi console
+
+#### Test Case 2: Admin Flow - Quản lý đơn
+1. Click tab "Quản lý" ở bottom nav
+2. Kiểm tra OrderList hiển thị đơn vừa tạo
+3. Kiểm tra đơn đầu tiên có badge "ƯU TIÊN"
+4. Click nút "Edit" → hiện controls để sửa món
+5. Tăng số lượng món → click "✓ Xong" → total update đúng
+6. Click "Hoàn tất đơn" → đơn chuyển sang tab "Đã xong"
+7. Tab "Đã xong": click "Thêm món" → mở AddToOrderModal
+8. Chọn món từ menu → thêm vào additional cart
+9. Click "Xác nhận thêm món" → tạo đơn mới linked với đơn cũ
+10. Hoàn thành đơn mới → merge vào đơn gốc
+
+**Expected**: Tất cả flow quản lý đơn hoạt động đúng
+
+#### Test Case 3: Admin Flow - Doanh thu
+1. Click tab "Doanh thu" ở bottom nav
+2. Kiểm tra hiển thị stats: Hôm nay, Tháng này, Tổng
+3. Click nút "<" để xem ngày trước
+4. Click nút ">" để về ngày sau (disabled nếu là hôm nay)
+5. Click "Hôm nay" text → về ngày hôm nay
+6. Kiểm tra "Bán chạy hôm nay" hiển thị đúng top 5
+7. Kiểm tra "Chi tiết đơn" list đơn hàng trong ngày
+8. Kiểm tra "Tổng hợp các món" hiển thị all-time top items
+
+**Expected**: Revenue view hiển thị chính xác, navigation hoạt động
+
+#### Test Case 4: Realtime & Notifications
+1. Mở 2 browser tabs:
+   - Tab 1: Customer view
+   - Tab 2: Admin view (tab "Quản lý")
+2. Tab 1: Đặt đơn hàng mới
+3. Tab 2: Kiểm tra:
+   - Đơn xuất hiện realtime (không cần refresh)
+   - Phát âm thanh thông báo
+   - Browser notification hiện lên (nếu đã grant permission)
+4. Tab 2: Click "Hoàn tất đơn"
+5. Tab 2 & Tab 1: Check đơn chuyển tab "Đã xong" ở cả 2 tabs
+
+**Expected**: Realtime sync hoạt động, notifications trigger đúng
+
+#### Test Case 5: Mobile Responsive
+1. Mở DevTools → Toggle Device Toolbar
+2. Chọn iPhone 12 Pro
+3. Test tất cả flows trên mobile:
+   - Search, filter, menu scroll
+   - Cart overlay full screen
+   - Bottom navigation
+   - Order editing
+   - Revenue view
+
+**Expected**: UI responsive, không bị vỡ layout, touch hoạt động tốt
+
+---
+
+## Migration Steps
+
+### Giai đoạn 1: Chuẩn bị cấu trúc (5-10 phút)
+1. Tạo tất cả thư mục mới trong `src/`
+2. Copy files hiện tại vào vị trí tạm để backup
+
+### Giai đoạn 2: Di chuyển Types, Constants, Services (5 phút)
+1. Rename và di chuyển [types.ts](file:///c:/Users/tuanc/Downloads/order-manager/types.ts), [constants.ts](file:///c:/Users/tuanc/Downloads/order-manager/constants.ts)
+2. Di chuyển Firebase và Gemini services vào folders mới
+3. Update import paths
+
+### Giai đoạn 3: Tạo Utilities (10 phút)
+1. Extract và tạo `dateTime.ts`
+2. Extract và tạo `revenue.ts`
+3. Extract và tạo `notification.ts`
+4. Extract và tạo `order.ts`
+
+### Giai đoạn 4: Tạo Hooks (15-20 phút)
+1. Tạo `useCart.ts` - extract cart logic từ App
+2. Tạo `useOrders.ts` - extract orders + Firebase logic
+3. Tạo `useToast.ts` - extract toast logic
+4. Tạo `useNotification.ts` - extract notification logic
+5. Tạo `useAdminTabs.ts` - extract admin tabs state
+
+### Giai đoạn 5: Tạo Common Components (10 phút)
+1. Tạo `NoteInput.tsx`
+2. Tạo `QuantitySelector.tsx`
+
+### Giai đoạn 6: Tạo Layout Components (10 phút)
+1. Tạo `Header.tsx`
+2. Tạo `BottomNavigation.tsx`
+3. Tạo `Toast.tsx`
+
+### Giai đoạn 7: Tạo Customer Components (20-25 phút)
+1. Tạo `SearchBar.tsx`
+2. Tạo `CategoryFilter.tsx`
+3. Tạo `MenuCard.tsx`
+4. Tạo `MenuList.tsx`
+5. Tạo `CartButton.tsx`
+6. Tạo `CartOverlay.tsx`
+7. Tạo `CartItem.tsx`
+
+### Giai đoạn 8: Tạo Admin Components (25-30 phút)
+1. Tạo `OrderCard.tsx` (phức tạp nhất)
+2. Tạo `OrderList.tsx`
+3. Tạo `AddToOrderModal.tsx`
+4. Tạo `RevenueView.tsx`
+5. Tạo `RevenueStats.tsx`
+6. Tạo `TopItems.tsx`
+
+### Giai đoạn 9: Refactor App.tsx (15-20 phút)
+1. Import tất cả components và hooks
+2. Replace JSX bằng components mới
+3. Move business logic vào hooks
+4. Giữ lại chỉ routing và layout
+5. Test compile
+
+### Giai đoạn 10: Update Build Config (5 phút)
+1. Update [tsconfig.json](file:///c:/Users/tuanc/Downloads/order-manager/tsconfig.json) với path aliases
+2. Update [vite.config.ts](file:///c:/Users/tuanc/Downloads/order-manager/vite.config.ts) với resolve aliases
+3. Update [index.tsx](file:///c:/Users/tuanc/Downloads/order-manager/index.tsx) import path
+
+### Giai đoạn 11: Testing & Cleanup (20-30 phút)
+1. Run build test
+2. Run dev server
+3. Manual testing theo test cases
+4. Fix any bugs found
+5. Xóa code cũ đã backup
+
+**Tổng thời gian ước tính: 2.5 - 3.5 giờ**
