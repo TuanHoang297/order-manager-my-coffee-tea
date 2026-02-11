@@ -89,6 +89,7 @@ export const CartOverlay: React.FC<CartOverlayProps> = ({
                     onClick={() => {
                       if (confirm('Xóa toàn bộ giỏ hàng?')) {
                         onClearCart();
+                        onClose();
                       }
                     }}
                     className="p-3 bg-red-50 rounded-xl text-red-500 hover:bg-red-100 transition-all"
