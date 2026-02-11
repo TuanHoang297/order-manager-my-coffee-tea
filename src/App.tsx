@@ -97,7 +97,7 @@ export default function App() {
       setTimeout(() => {
         setOrderSuccess(false);
         setShowCartDetails(false);
-      }, 3000);
+      }, 400);
     } catch (error) {
       console.error('Lỗi khi lưu đơn hàng:', error);
       setIsOrdering(false);
