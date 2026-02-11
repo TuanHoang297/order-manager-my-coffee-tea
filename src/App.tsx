@@ -285,6 +285,7 @@ export default function App() {
         onPlaceOrder={handlePlaceOrder}
         onUpdateQuantity={updateQuantity}
         onUpdateNote={updateNote}
+        onClearCart={clearCart}
         isOrdering={isOrdering}
         orderSuccess={orderSuccess}
       />

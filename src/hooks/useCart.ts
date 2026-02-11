@@ -6,19 +6,26 @@ export const useCart = () => {
 
   const addToCart = (item: MenuItem) => {
     setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      // Find existing item without note
+      const existingWithoutNote = prev.find(i => i.id === item.id && !i.note);
+      
+      if (existingWithoutNote) {
+        // Increase quantity of item without note
+        return prev.map(i => 
+          i === existingWithoutNote ? { ...i, quantity: i.quantity + 1 } : i
+        );
       }
+      
+      // Add new item
       return [...prev, { ...item, quantity: 1, note: '' }];
     });
     if (window.navigator.vibrate) window.navigator.vibrate(12);
   };
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateQuantity = (itemIndex: number, delta: number) => {
     setCart(prev => {
-      return prev.map(item => {
-        if (item.id === id) {
+      return prev.map((item, idx) => {
+        if (idx === itemIndex) {
           const newQty = Math.max(0, item.quantity + delta);
           return { ...item, quantity: newQty };
         }
@@ -28,9 +35,9 @@ export const useCart = () => {
     if (window.navigator.vibrate) window.navigator.vibrate(8);
   };
 
-  const updateNote = (id: string, note: string) => {
-    setCart(prev => prev.map(item =>
-      item.id === id ? { ...item, note } : item
+  const updateNote = (itemIndex: number, note: string) => {
+    setCart(prev => prev.map((item, idx) =>
+      idx === itemIndex ? { ...item, note } : item
     ));
   };
 

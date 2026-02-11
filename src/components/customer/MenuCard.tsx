@@ -8,14 +8,16 @@ interface MenuCardProps {
   item: MenuItem;
   cartItem?: OrderItem;
   onAdd: (item: MenuItem) => void;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onUpdateNote: (id: string, note: string) => void;
+  onRemove: () => void;
+  onUpdateQuantity: (delta: number) => void;
+  onUpdateNote: (note: string) => void;
 }
 
 export const MenuCard: React.FC<MenuCardProps> = ({
   item,
   cartItem,
   onAdd,
+  onRemove,
   onUpdateQuantity,
   onUpdateNote
 }) => {
@@ -27,7 +29,13 @@ export const MenuCard: React.FC<MenuCardProps> = ({
     >
       <div
         className="p-4 flex items-center justify-between cursor-pointer"
-        onClick={() => onAdd(item)}
+        onClick={() => {
+          if (cartItem) {
+            onRemove();
+          } else {
+            onAdd(item);
+          }
+        }}
       >
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
@@ -39,7 +47,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({
             <QuantitySelector
               quantity={cartItem.quantity}
               onIncrease={() => onAdd(item)}
-              onDecrease={() => onUpdateQuantity(item.id, -1)}
+              onDecrease={() => onUpdateQuantity(-1)}
             />
           </div>
         ) : (
@@ -53,7 +61,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({
         <div className="px-4 pb-3" onClick={(e) => e.stopPropagation()}>
           <NoteInput
             value={cartItem.note || ''}
-            onSave={(note) => onUpdateNote(item.id, note)}
+            onSave={(note) => onUpdateNote(note)}
             placeholder="Ghi chú: ít đường, nhiều đá..."
           />
         </div>

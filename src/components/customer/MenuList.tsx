@@ -7,8 +7,8 @@ interface MenuListProps {
   menuItems: MenuItem[];
   cart: OrderItem[];
   onAddToCart: (item: MenuItem) => void;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onUpdateNote: (id: string, note: string) => void;
+  onUpdateQuantity: (index: number, delta: number) => void;
+  onUpdateNote: (index: number, note: string) => void;
 }
 
 const getCategoryIcon = (cat: string) => {
@@ -51,15 +51,31 @@ export const MenuList: React.FC<MenuListProps> = ({
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {items.map(item => {
-                const cartItem = cart.find(c => c.id === item.id);
+                // Find the first cart item without note for this menu item
+                const cartItemIndex = cart.findIndex(c => c.id === item.id && !c.note);
+                const cartItem = cartItemIndex >= 0 ? cart[cartItemIndex] : undefined;
+                
                 return (
                   <MenuCard
                     key={item.id}
                     item={item}
                     cartItem={cartItem}
                     onAdd={onAddToCart}
-                    onUpdateQuantity={onUpdateQuantity}
-                    onUpdateNote={onUpdateNote}
+                    onRemove={() => {
+                      if (cartItemIndex >= 0) {
+                        onUpdateQuantity(cartItemIndex, -cartItem!.quantity);
+                      }
+                    }}
+                    onUpdateQuantity={(delta) => {
+                      if (cartItemIndex >= 0) {
+                        onUpdateQuantity(cartItemIndex, delta);
+                      }
+                    }}
+                    onUpdateNote={(note) => {
+                      if (cartItemIndex >= 0) {
+                        onUpdateNote(cartItemIndex, note);
+                      }
+                    }}
                   />
                 );
               })}

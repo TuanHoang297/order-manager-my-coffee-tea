@@ -5,8 +5,8 @@ import { NoteInput } from '../common/NoteInput';
 
 interface CartItemProps {
   item: OrderItem;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onUpdateNote: (id: string, note: string) => void;
+  onUpdateQuantity: (delta: number) => void;
+  onUpdateNote: (note: string) => void;
 }
 
 export const CartItem: React.FC<CartItemProps> = ({
@@ -23,14 +23,14 @@ export const CartItem: React.FC<CartItemProps> = ({
         </div>
         <div className="flex items-center gap-3 bg-white px-3 py-2 rounded-xl border border-gray-200">
           <button
-            onClick={() => onUpdateQuantity(item.id, -1)}
+            onClick={() => onUpdateQuantity(-1)}
             className="text-red-500 hover:text-red-400 transition-colors p-1"
           >
             <Minus size={18} strokeWidth={2.5} />
           </button>
           <span className="font-black text-indigo-600 text-lg min-w-[28px] text-center">{item.quantity}</span>
           <button
-            onClick={() => onUpdateQuantity(item.id, 1)}
+            onClick={() => onUpdateQuantity(1)}
             className="text-emerald-500 hover:text-emerald-400 transition-colors p-1"
           >
             <Plus size={18} strokeWidth={2.5} />
@@ -40,7 +40,7 @@ export const CartItem: React.FC<CartItemProps> = ({
 
       <NoteInput
         value={item.note || ''}
-        onSave={(note) => onUpdateNote(item.id, note)}
+        onSave={(note) => onUpdateNote(note)}
         placeholder="Ví dụ: ít đường, nhiều đá..."
       />
     </div>

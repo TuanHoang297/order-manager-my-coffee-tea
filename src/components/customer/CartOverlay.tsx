@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, ChevronRight, PartyPopper, Store, ShoppingBag } from 'lucide-react';
+import { X, User, ChevronRight, PartyPopper, Store, ShoppingBag, Trash2 } from 'lucide-react';
 import { OrderItem, OrderType } from '../../types';
 import { CartItem } from './CartItem';
 
@@ -8,8 +8,9 @@ interface CartOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   onPlaceOrder: (customerName: string, orderType: OrderType) => void;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onUpdateNote: (id: string, note: string) => void;
+  onUpdateQuantity: (index: number, delta: number) => void;
+  onUpdateNote: (index: number, note: string) => void;
+  onClearCart: () => void;
   isOrdering: boolean;
   orderSuccess: boolean;
 }
@@ -21,6 +22,7 @@ export const CartOverlay: React.FC<CartOverlayProps> = ({
   onPlaceOrder,
   onUpdateQuantity,
   onUpdateNote,
+  onClearCart,
   isOrdering,
   orderSuccess
 }) => {
@@ -81,12 +83,26 @@ export const CartOverlay: React.FC<CartOverlayProps> = ({
                 <h2 className="text-2xl font-black text-gray-900">Giỏ hàng</h2>
                 <p className="text-sm text-gray-500 mt-1 font-semibold">{cart.length} món • {totalItems} ly</p>
               </div>
-              <button
-                onClick={onClose}
-                className="p-3 bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all"
-              >
-                <X size={22} />
-              </button>
+              <div className="flex items-center gap-2">
+                {cart.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (confirm('Xóa toàn bộ giỏ hàng?')) {
+                        onClearCart();
+                      }
+                    }}
+                    className="p-3 bg-red-50 rounded-xl text-red-500 hover:bg-red-100 transition-all"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="p-3 bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all"
+                >
+                  <X size={22} />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar mb-6">
@@ -99,12 +115,12 @@ export const CartOverlay: React.FC<CartOverlayProps> = ({
                   <p className="text-sm text-gray-400 mt-1">Thêm món để bắt đầu đặt hàng</p>
                 </div>
               ) : (
-                cart.map(item => (
+                cart.map((item, index) => (
                   <CartItem
-                    key={item.id}
+                    key={`${item.id}-${index}`}
                     item={item}
-                    onUpdateQuantity={onUpdateQuantity}
-                    onUpdateNote={onUpdateNote}
+                    onUpdateQuantity={(delta) => onUpdateQuantity(index, delta)}
+                    onUpdateNote={(note) => onUpdateNote(index, note)}
                   />
                 ))
               )}
