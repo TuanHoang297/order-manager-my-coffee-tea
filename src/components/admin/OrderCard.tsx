@@ -98,16 +98,11 @@ export const OrderCard: React.FC<OrderCardProps> = ({
           : isDelayed
             ? 'border-red-300 ring-2 ring-red-100'
             : order.status === 'completed'
-              ? 'border-green-200 cursor-pointer hover:shadow-md active:scale-[0.99]'
+              ? 'border-green-200'
               : order.status === 'preparing'
                 ? 'border-indigo-300 ring-2 ring-indigo-100'
                 : 'border-gray-200'
       }`}
-      onClick={() => {
-        if (order.status === 'completed' && onViewDetail) {
-          onViewDetail(order);
-        }
-      }}
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-4">
@@ -329,9 +324,16 @@ export const OrderCard: React.FC<OrderCardProps> = ({
           )}
           {order.status === 'completed' && (
             <>
-              <div className="flex-1 text-emerald-600 font-bold text-sm text-center py-3 rounded-xl border border-emerald-200 flex items-center justify-center gap-2 bg-emerald-50">
-                <CheckCircle size={18} /> Đã giao • Nhấn để xem
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onViewDetail) onViewDetail(order);
+                }}
+                className="flex-1 bg-emerald-50 border border-emerald-300 text-emerald-700 py-3 rounded-xl font-bold text-sm hover:bg-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <CheckCircle size={18} />
+                <span>Đã giao</span>
+              </button>
               {/* Payment Toggle - Only for dine-in orders */}
               {order.orderType === 'dine-in' && onTogglePayment && (
                 <button

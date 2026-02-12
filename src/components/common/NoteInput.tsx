@@ -17,7 +17,7 @@ export const NoteInput: React.FC<NoteInputProps> = ({
 
   // Quick note suggestions
   const quickNotes = [
-    'Ít đường',
+    'Ít ngọt',
     'Nhiều đá',
     'Ít đá',
     'Không đá',

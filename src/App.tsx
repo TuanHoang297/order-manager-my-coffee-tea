@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BarChart3, ReceiptText } from 'lucide-react';
+import { BarChart3, ReceiptText, UtensilsCrossed, X } from 'lucide-react';
 import { Category, Order, OrderType } from './types';
 import { MENU_ITEMS } from './constants';
 import { generateOrderId } from './utils/order';
@@ -223,40 +223,62 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-indigo-600 rounded-xl text-white">
-                    <ReceiptText size={24} />
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-indigo-600 rounded-xl text-white">
+                        <ReceiptText size={24} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Quản lý đơn hàng</h2>
+                        <p className="text-sm text-gray-500">Theo dõi và xử lý đơn</p>
+                      </div>
+                    </div>
+                    {adminTab !== 'menu' && (
+                      <button
+                        onClick={() => setAdminTab('menu')}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-300 text-indigo-700 rounded-lg font-semibold hover:bg-indigo-100 active:scale-95 transition-all"
+                      >
+                        <UtensilsCrossed size={18} />
+                        <span>Thực đơn</span>
+                      </button>
+                    )}
+                    {adminTab === 'menu' && (
+                      <button
+                        onClick={() => setAdminTab('active')}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 active:scale-95 transition-all"
+                      >
+                        <X size={18} />
+                        <span>Đóng</span>
+                      </button>
+                    )}
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Quản lý đơn hàng</h2>
-                    <p className="text-sm text-gray-500">Theo dõi và xử lý đơn</p>
-                  </div>
-                </div>
-              )}
 
-              {adminTab !== 'revenue' && adminTab !== 'menu' && (
-                <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
-                  <button
-                    onClick={() => setAdminTab('active')}
-                    className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                      adminTab === 'active'
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    Đơn mới ({orders.filter(o => o.status !== 'completed').length})
-                  </button>
-                  <button
-                    onClick={() => setAdminTab('completed')}
-                    className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                      adminTab === 'completed'
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    Đã xong ({orders.filter(o => o.status === 'completed').length})
-                  </button>
-                </div>
+                  {adminTab !== 'menu' && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
+                      <button
+                        onClick={() => setAdminTab('active')}
+                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                          adminTab === 'active'
+                            ? 'bg-indigo-600 text-white shadow-md'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Đơn mới ({orders.filter(o => o.status !== 'completed').length})
+                      </button>
+                      <button
+                        onClick={() => setAdminTab('completed')}
+                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                          adminTab === 'completed'
+                            ? 'bg-indigo-600 text-white shadow-md'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Đã xong ({orders.filter(o => o.status === 'completed').length})
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               <div>
