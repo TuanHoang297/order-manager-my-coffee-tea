@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, ClipboardList, BarChart3 } from 'lucide-react';
+import { ShoppingCart, ClipboardList, BarChart3, UtensilsCrossed } from 'lucide-react';
 import { AdminTab } from '../../hooks/useAdminTabs';
 
 interface BottomNavigationProps {
@@ -35,17 +35,17 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
       <button
         onClick={() => {
           onViewChange('admin');
-          if (adminTab === 'revenue') onAdminTabChange('active');
+          if (adminTab === 'revenue' || adminTab === 'menu') onAdminTabChange('active');
         }}
         className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${
-          activeView === 'admin' && adminTab !== 'revenue' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+          activeView === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
         }`}
       >
-        {activeView === 'admin' && adminTab !== 'revenue' && (
+        {activeView === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' && (
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
         )}
-        <ClipboardList size={24} strokeWidth={activeView === 'admin' && adminTab !== 'revenue' ? 2.5 : 2} />
-        <span className="text-xs font-bold">Quản lý</span>
+        <ClipboardList size={24} strokeWidth={activeView === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' ? 2.5 : 2} />
+        <span className="text-xs font-bold">Đơn hàng</span>
       </button>
 
       <div className="w-px h-8 bg-gray-200"></div>
@@ -64,6 +64,24 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
         )}
         <BarChart3 size={24} strokeWidth={activeView === 'admin' && adminTab === 'revenue' ? 2.5 : 2} />
         <span className="text-xs font-bold">Doanh thu</span>
+      </button>
+
+      <div className="w-px h-8 bg-gray-200"></div>
+
+      <button
+        onClick={() => {
+          onViewChange('admin');
+          onAdminTabChange('menu');
+        }}
+        className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${
+          activeView === 'admin' && adminTab === 'menu' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+        }`}
+      >
+        {activeView === 'admin' && adminTab === 'menu' && (
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
+        )}
+        <UtensilsCrossed size={24} strokeWidth={activeView === 'admin' && adminTab === 'menu' ? 2.5 : 2} />
+        <span className="text-xs font-bold">Thực đơn</span>
       </button>
     </nav>
   );

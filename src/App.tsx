@@ -8,6 +8,7 @@ import { useOrders } from './hooks/useOrders';
 import { useToast } from './hooks/useToast';
 import { useNotification } from './hooks/useNotification';
 import { useAdminTabs } from './hooks/useAdminTabs';
+import { useMenu } from './hooks/useMenu';
 import { Header } from './components/layout/Header';
 import { BottomNavigation } from './components/layout/BottomNavigation';
 import { Toast } from './components/layout/Toast';
@@ -19,6 +20,8 @@ import { CartOverlay } from './components/customer/CartOverlay';
 import { OrderList } from './components/admin/OrderList';
 import { AddToOrderModal } from './components/admin/AddToOrderModal';
 import { RevenueView } from './components/admin/RevenueView';
+import { MenuManagement } from './components/admin/MenuManagement';
+import { OrderDetailModal } from './components/admin/OrderDetailModal';
 
 export default function App() {
   const [view, setView] = useState<'customer' | 'admin'>('customer');
@@ -28,6 +31,7 @@ export default function App() {
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [addingToOrderId, setAddingToOrderId] = useState<string | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [, setTimeUpdate] = useState(0);
 
   const { cart, addToCart, updateQuantity, updateNote, clearCart, cartTotal } = useCart();
@@ -35,6 +39,7 @@ export default function App() {
   const { toasts, showToast } = useToast();
   const { playNotification, requestPermission, showBrowserNotification } = useNotification();
   const { adminTab, setAdminTab, revenueDate, setRevenueDate } = useAdminTabs();
+  const { menuItems, addMenuItem, updateItem, deleteItem } = useMenu();
 
   // Auto-refresh time every minute
   useEffect(() => {
@@ -63,12 +68,12 @@ export default function App() {
   }, [view]);
 
   const filteredMenu = useMemo(() => {
-    return MENU_ITEMS.filter(item => {
+    return menuItems.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === 'Tất cả' || item.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, menuItems]);
 
   const handlePlaceOrder = async (customerName: string, orderType: OrderType) => {
     if (cart.length === 0) return;
@@ -229,7 +234,7 @@ export default function App() {
                 </div>
               )}
 
-              {adminTab !== 'revenue' && (
+              {adminTab !== 'revenue' && adminTab !== 'menu' && (
                 <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
                   <button
                     onClick={() => setAdminTab('active')}
@@ -261,6 +266,13 @@ export default function App() {
                     selectedDate={revenueDate}
                     onDateChange={setRevenueDate}
                   />
+                ) : adminTab === 'menu' ? (
+                  <MenuManagement
+                    menuItems={menuItems}
+                    onAddItem={addMenuItem}
+                    onUpdateItem={updateItem}
+                    onDeleteItem={deleteItem}
+                  />
                 ) : (
                   <OrderList
                     orders={orders}
@@ -270,6 +282,7 @@ export default function App() {
                     onDelete={handleDeleteOrder}
                     onAddToOrder={(orderId) => setAddingToOrderId(orderId)}
                     onTogglePayment={handleTogglePayment}
+                    onViewDetail={(order) => setViewingOrder(order)}
                   />
                 )}
               </div>
@@ -305,6 +318,12 @@ export default function App() {
         onClose={() => setAddingToOrderId(null)}
         onConfirm={handleAddToExistingOrder}
         isOrdering={isOrdering}
+      />
+
+      <OrderDetailModal
+        order={viewingOrder}
+        isOpen={!!viewingOrder}
+        onClose={() => setViewingOrder(null)}
       />
 
       <BottomNavigation

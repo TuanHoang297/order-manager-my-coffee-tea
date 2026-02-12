@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type AdminTab = 'active' | 'completed' | 'revenue';
+export type AdminTab = 'active' | 'completed' | 'revenue' | 'menu';
 
 export const useAdminTabs = () => {
   const [adminTab, setAdminTab] = useState<AdminTab>('active');

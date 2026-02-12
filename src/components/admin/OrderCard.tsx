@@ -13,6 +13,7 @@ interface OrderCardProps {
   onDelete: (orderId: string) => void;
   onAddToOrder?: (orderId: string) => void;
   onTogglePayment?: (orderId: string, isPaid: boolean) => void;
+  onViewDetail?: (order: Order) => void;
 }
 
 export const OrderCard: React.FC<OrderCardProps> = ({
@@ -22,7 +23,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   onUpdateItems,
   onDelete,
   onAddToOrder,
-  onTogglePayment
+  onTogglePayment,
+  onViewDetail
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -89,17 +91,24 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   const isDelayed = isOrderDelayed(order.timestamp, order.status);
 
   return (
-    <div className={`bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${
-      isFirstOrder && order.status !== 'completed'
-        ? 'border-blue-500 ring-4 ring-blue-100 shadow-md scale-[1.01] z-10'
-        : isDelayed
-          ? 'border-red-300 ring-2 ring-red-100'
-          : order.status === 'completed'
-            ? 'border-green-200'
-            : order.status === 'preparing'
-              ? 'border-indigo-300 ring-2 ring-indigo-100'
-              : 'border-gray-200'
-    }`}>
+    <div 
+      className={`bg-white border rounded-xl overflow-hidden shadow-sm transition-all ${
+        isFirstOrder && order.status !== 'completed'
+          ? 'border-blue-500 ring-4 ring-blue-100 shadow-md scale-[1.01] z-10'
+          : isDelayed
+            ? 'border-red-300 ring-2 ring-red-100'
+            : order.status === 'completed'
+              ? 'border-green-200 cursor-pointer hover:shadow-md active:scale-[0.99]'
+              : order.status === 'preparing'
+                ? 'border-indigo-300 ring-2 ring-indigo-100'
+                : 'border-gray-200'
+      }`}
+      onClick={() => {
+        if (order.status === 'completed' && onViewDetail) {
+          onViewDetail(order);
+        }
+      }}
+    >
       <div className="p-4">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -321,12 +330,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({
           {order.status === 'completed' && (
             <>
               <div className="flex-1 text-emerald-600 font-bold text-sm text-center py-3 rounded-xl border border-emerald-200 flex items-center justify-center gap-2 bg-emerald-50">
-                <CheckCircle size={18} /> Đã giao
+                <CheckCircle size={18} /> Đã giao • Nhấn để xem
               </div>
               {/* Payment Toggle - Only for dine-in orders */}
               {order.orderType === 'dine-in' && onTogglePayment && (
                 <button
-                  onClick={() => onTogglePayment(order.id, !order.isPaid)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePayment(order.id, !order.isPaid);
+                  }}
                   className={`px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all ${
                     order.isPaid
                       ? 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100'
@@ -338,7 +350,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({
               )}
               {onAddToOrder && (
                 <button
-                  onClick={() => onAddToOrder(order.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToOrder(order.id);
+                  }}
                   className="px-5 py-3 bg-indigo-50 border border-indigo-300 rounded-xl text-indigo-700 font-bold text-sm hover:bg-indigo-100 active:scale-95 transition-all"
                 >
                   + Thêm món

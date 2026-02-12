@@ -17,10 +17,14 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: '9', name: 'Trà Sữa Gạo Rang', price: 30000, category: Category.MILK_TEA },
   { id: '14', name: 'Trà Lipton', price: 30000, category: Category.MILK_TEA },
   { id: '15', name: 'Trà Chanh Xí Muội', price: 30000, category: Category.MILK_TEA },
+  { id: '18', name: 'Trà Xoài', price: 30000, category: Category.MILK_TEA },
   
   // Healthy
   { id: '10', name: 'Đậu Nành Mè Đen', price: 20000, category: Category.HEALTHY },
   { id: '11', name: 'Sữa Bắp', price: 20000, category: Category.HEALTHY },
   { id: '12', name: 'Đậu Nành Hạt Điều', price: 20000, category: Category.HEALTHY },
-  { id: '13', name: 'Đậu Xanh Hạt Sen', price: 20000, category: Category.HEALTHY }
+  { id: '13', name: 'Đậu Xanh Hạt Sen', price: 20000, category: Category.HEALTHY },
+  { id: '16', name: 'Đậu Đỏ', price: 20000, category: Category.HEALTHY },
+  { id: '17', name: 'Gạo Rang', price: 20000, category: Category.HEALTHY },
+  { id: '19', name: '7up', price: 20000, category: Category.HEALTHY }
 ];
