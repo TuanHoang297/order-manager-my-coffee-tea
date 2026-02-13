@@ -38,8 +38,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({
         }}
       >
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-          <p className="text-lg font-bold text-gray-900">{item.price.toLocaleString()}đ</p>
+          <h3 className="font-bold text-lg text-gray-900 mb-1">{item.name}</h3>
+          <p className="text-sm font-semibold text-gray-600">{item.price.toLocaleString()}đ</p>
         </div>
 
         {cartItem ? (
