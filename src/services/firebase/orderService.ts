@@ -39,7 +39,8 @@ export const updateOrderStatus = async (
   status: Order['status'],
   items?: Order['items'],
   total?: number,
-  isPaid?: boolean
+  isPaid?: boolean,
+  customerName?: string
 ): Promise<void> => {
   const orderRef = ref(database, `orders/${firebaseId}`);
   const updates: any = { status };
@@ -47,6 +48,7 @@ export const updateOrderStatus = async (
   if (items) updates.items = items;
   if (total !== undefined) updates.total = total;
   if (isPaid !== undefined) updates.isPaid = isPaid;
+  if (customerName !== undefined) updates.customerName = customerName;
   
   await update(orderRef, updates);
 };

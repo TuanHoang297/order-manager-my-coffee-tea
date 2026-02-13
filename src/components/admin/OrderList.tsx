@@ -13,6 +13,7 @@ interface OrderListProps {
   onAddToOrder?: (orderId: string) => void;
   onTogglePayment?: (orderId: string, isPaid: boolean) => void;
   onViewDetail?: (order: Order) => void;
+  onUpdateCustomerName?: (orderId: string, name: string) => void;
 }
 
 export const OrderList: React.FC<OrderListProps> = ({
@@ -23,7 +24,8 @@ export const OrderList: React.FC<OrderListProps> = ({
   onDelete,
   onAddToOrder,
   onTogglePayment,
-  onViewDetail
+  onViewDetail,
+  onUpdateCustomerName
 }) => {
   const [orderTypeFilter, setOrderTypeFilter] = useState<OrderType | 'all'>('all');
 
@@ -115,6 +117,7 @@ export const OrderList: React.FC<OrderListProps> = ({
               onAddToOrder={onAddToOrder}
               onTogglePayment={onTogglePayment}
               onViewDetail={onViewDetail}
+              onUpdateCustomerName={onUpdateCustomerName}
             />
           ))}
         </div>

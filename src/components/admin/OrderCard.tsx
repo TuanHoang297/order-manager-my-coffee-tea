@@ -14,6 +14,7 @@ interface OrderCardProps {
   onAddToOrder?: (orderId: string) => void;
   onTogglePayment?: (orderId: string, isPaid: boolean) => void;
   onViewDetail?: (order: Order) => void;
+  onUpdateCustomerName?: (orderId: string, name: string) => void;
 }
 
 export const OrderCard: React.FC<OrderCardProps> = ({
@@ -24,9 +25,12 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   onDelete,
   onAddToOrder,
   onTogglePayment,
-  onViewDetail
+  onViewDetail,
+  onUpdateCustomerName
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [customerName, setCustomerName] = useState(order.customerName || '');
 
   // ESC key to cancel edit mode
   React.useEffect(() => {
@@ -108,7 +112,36 @@ export const OrderCard: React.FC<OrderCardProps> = ({
         <div className="flex justify-between items-start mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h4 className="font-bold text-lg text-gray-900">{order.customerName}</h4>
+              {isEditingName ? (
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  onBlur={() => {
+                    if (customerName.trim() && customerName !== order.customerName && onUpdateCustomerName) {
+                      onUpdateCustomerName(order.id, customerName.trim());
+                    }
+                    setIsEditingName(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.currentTarget.blur();
+                    } else if (e.key === 'Escape') {
+                      setCustomerName(order.customerName || '');
+                      setIsEditingName(false);
+                    }
+                  }}
+                  autoFocus
+                  className="font-bold text-lg text-gray-900 border-b-2 border-indigo-400 focus:outline-none bg-transparent"
+                />
+              ) : (
+                <h4 
+                  className="font-bold text-lg text-gray-900 cursor-pointer hover:text-indigo-600 transition-colors"
+                  onClick={() => setIsEditingName(true)}
+                >
+                  {order.customerName}
+                </h4>
+              )}
               
               {/* Order Type Badge */}
               <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${
@@ -339,7 +372,13 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onTogglePayment(order.id, !order.isPaid);
+                    const newStatus = !order.isPaid;
+                    const message = newStatus 
+                      ? 'Xác nhận đã thanh toán?' 
+                      : 'Đánh dấu chưa thanh toán?';
+                    if (confirm(message)) {
+                      onTogglePayment(order.id, newStatus);
+                    }
                   }}
                   className={`px-5 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all ${
                     order.isPaid

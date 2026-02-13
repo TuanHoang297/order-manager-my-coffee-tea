@@ -9,6 +9,7 @@ import { useToast } from './hooks/useToast';
 import { useNotification } from './hooks/useNotification';
 import { useAdminTabs } from './hooks/useAdminTabs';
 import { useMenu } from './hooks/useMenu';
+import { updateOrderStatus as updateOrderStatusFirebase } from './services/firebase/orderService';
 import { Header } from './components/layout/Header';
 import { BottomNavigation } from './components/layout/BottomNavigation';
 import { Toast } from './components/layout/Toast';
@@ -182,6 +183,19 @@ export default function App() {
     }
   };
 
+  const handleUpdateCustomerName = async (orderId: string, name: string) => {
+    try {
+      const order = orders.find(o => o.id === orderId);
+      if (order?.firebaseId) {
+        await updateOrderStatusFirebase(order.firebaseId, order.status, undefined, undefined, undefined, name);
+        if (window.navigator.vibrate) window.navigator.vibrate(20);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật tên:', error);
+      showToast('Lỗi khi cập nhật tên', 'error');
+    }
+  };
+
   const categories: Array<Category | 'Tất cả'> = ['Tất cả', ...Object.values(Category)];
 
   return (
@@ -305,6 +319,7 @@ export default function App() {
                     onAddToOrder={(orderId) => setAddingToOrderId(orderId)}
                     onTogglePayment={handleTogglePayment}
                     onViewDetail={(order) => setViewingOrder(order)}
+                    onUpdateCustomerName={handleUpdateCustomerName}
                   />
                 )}
               </div>
