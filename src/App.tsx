@@ -358,9 +358,10 @@ export default function App() {
       />
 
       <OrderDetailModal
-        order={viewingOrder}
+        order={viewingOrder ? orders.find(o => o.id === viewingOrder.id) || viewingOrder : null}
         isOpen={!!viewingOrder}
         onClose={() => setViewingOrder(null)}
+        onTogglePayment={handleTogglePayment}
       />
 
       <BottomNavigation

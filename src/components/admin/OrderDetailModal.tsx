@@ -6,12 +6,14 @@ interface OrderDetailModalProps {
   order: Order | null;
   isOpen: boolean;
   onClose: () => void;
+  onTogglePayment?: (orderId: string, isPaid: boolean) => void;
 }
 
 export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   order,
   isOpen,
-  onClose
+  onClose,
+  onTogglePayment
 }) => {
   if (!isOpen || !order) return null;
 
@@ -98,14 +100,25 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         </div>
 
         {/* Payment Status for Dine-in */}
-        {order.orderType === 'dine-in' && (
-          <div className={`flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-sm mb-2 ${
-            order.isPaid 
-              ? 'bg-green-100 text-green-700 border border-green-300' 
-              : 'bg-amber-100 text-amber-700 border border-amber-300'
-          }`}>
-            {order.isPaid ? '✓ Đã thanh toán' : '⏳ Chưa thanh toán'}
-          </div>
+        {order.orderType === 'dine-in' && onTogglePayment && (
+          <button
+            onClick={() => {
+              const newStatus = !order.isPaid;
+              const message = newStatus 
+                ? 'Xác nhận đã thanh toán?' 
+                : 'Đánh dấu chưa thanh toán?';
+              if (confirm(message)) {
+                onTogglePayment(order.id, newStatus);
+              }
+            }}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-sm mb-2 active:scale-95 transition-all ${
+              order.isPaid 
+                ? 'bg-green-100 text-green-700 border-2 border-green-300 hover:bg-green-200' 
+                : 'bg-amber-100 text-amber-700 border-2 border-amber-300 hover:bg-amber-200'
+            }`}
+          >
+            {order.isPaid ? '✓ Đã thanh toán' : '💰 Chưa thanh toán'}
+          </button>
         )}
 
         <button
