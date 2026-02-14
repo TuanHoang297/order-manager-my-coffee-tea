@@ -272,21 +272,19 @@ export default function App() {
                     <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
                       <button
                         onClick={() => setAdminTab('active')}
-                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                          adminTab === 'active'
+                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'active'
                             ? 'bg-indigo-600 text-white shadow-md'
                             : 'text-gray-600 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         Đơn mới ({orders.filter(o => o.status !== 'completed').length})
                       </button>
                       <button
                         onClick={() => setAdminTab('completed')}
-                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                          adminTab === 'completed'
+                        className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${adminTab === 'completed'
                             ? 'bg-indigo-600 text-white shadow-md'
                             : 'text-gray-600 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         Đã xong ({orders.filter(o => o.status === 'completed').length})
                       </button>
@@ -305,9 +303,30 @@ export default function App() {
                 ) : adminTab === 'menu' ? (
                   <MenuManagement
                     menuItems={menuItems}
-                    onAddItem={addMenuItem}
-                    onUpdateItem={updateItem}
-                    onDeleteItem={deleteItem}
+                    onAddItem={async (item) => {
+                      try {
+                        await addMenuItem(item);
+                        showToast('Đã thêm món mới!', 'success');
+                      } catch (error) {
+                        showToast('Lỗi khi thêm món!', 'error');
+                      }
+                    }}
+                    onUpdateItem={async (item) => {
+                      try {
+                        await updateItem(item);
+                        showToast('Đã cập nhật món!', 'success');
+                      } catch (error) {
+                        showToast('Lỗi khi cập nhật!', 'error');
+                      }
+                    }}
+                    onDeleteItem={async (itemId) => {
+                      try {
+                        await deleteItem(itemId);
+                        showToast('Đã xóa món!', 'success');
+                      } catch (error) {
+                        showToast('Lỗi khi xóa món!', 'error');
+                      }
+                    }}
                   />
                 ) : (
                   <OrderList

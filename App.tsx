@@ -23,11 +23,14 @@ import {
   Edit3,
   ChevronLeft,
   CalendarDays,
-  BarChart3
+  BarChart3,
+  UtensilsCrossed
 } from 'lucide-react';
 import { MenuItem, Category, Order, OrderItem } from './types';
 import { MENU_ITEMS } from './constants';
 import { saveOrder, subscribeToOrders, updateOrderStatus as updateOrderStatusFirebase } from './services/firebaseService';
+import { subscribeToMenu, saveMenuItem, updateMenuItem, deleteMenuItem, migrateMenuData } from './services/menuService';
+import { MenuManagement } from './src/components/admin/MenuManagement';
 
 export default function App() {
   const [view, setView] = useState<'customer' | 'admin'>('customer');
@@ -42,7 +45,7 @@ export default function App() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState('');
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
-  const [adminTab, setAdminTab] = useState<'active' | 'completed' | 'revenue'>('active');
+  const [adminTab, setAdminTab] = useState<'active' | 'completed' | 'revenue' | 'menu'>('active');
   const [addingToOrderId, setAddingToOrderId] = useState<string | null>(null);
   const [additionalCart, setAdditionalCart] = useState<OrderItem[]>([]);
   const [, setTimeUpdate] = useState(0);
@@ -50,6 +53,8 @@ export default function App() {
   const [additionalNoteInput, setAdditionalNoteInput] = useState('');
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [revenueDate, setRevenueDate] = useState(new Date());
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [isMigrating, setIsMigrating] = useState(false);
 
   // Auto-refresh time every minute
   useEffect(() => {
@@ -150,13 +155,38 @@ export default function App() {
     }
   }, [view]);
 
+  // Subscribe to menu changes from Firebase
+  useEffect(() => {
+    const unsubscribe = subscribeToMenu((firebaseMenu) => {
+      if (firebaseMenu.length > 0) {
+        setMenuItems(firebaseMenu);
+        setIsMigrating(false);
+      } else if (!isMigrating) {
+        // No menu data in Firebase, migrate from constants
+        setIsMigrating(true);
+        migrateMenuData(MENU_ITEMS)
+          .then(() => {
+            console.log('Menu migrated successfully');
+            setIsMigrating(false);
+          })
+          .catch((error) => {
+            console.error('Migration failed:', error);
+            setIsMigrating(false);
+            // Fallback to local menu
+            setMenuItems(MENU_ITEMS);
+          });
+      }
+    });
+    return () => unsubscribe();
+  }, [isMigrating]);
+
   const filteredMenu = useMemo(() => {
-    return MENU_ITEMS.filter(item => {
+    return menuItems.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === 'Tất cả' || item.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, menuItems]);
 
   const addToCart = (item: MenuItem) => {
     setCart(prev => {
@@ -711,6 +741,16 @@ export default function App() {
                     <p className="text-sm text-gray-500">Tổng quan tình hình kinh doanh</p>
                   </div>
                 </div>
+              ) : adminTab === 'menu' ? (
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-600/20">
+                    <UtensilsCrossed size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Quản lý thực đơn</h2>
+                    <p className="text-sm text-gray-500">Thêm, sửa, xóa món</p>
+                  </div>
+                </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-indigo-600 rounded-xl text-white">
@@ -723,8 +763,8 @@ export default function App() {
                 </div>
               )}
 
-              {/* Simple Tabs - Hidden in Revenue Mode */}
-              {adminTab !== 'revenue' && (
+              {/* Simple Tabs - Hidden in Revenue and Menu Mode */}
+              {adminTab !== 'revenue' && adminTab !== 'menu' && (
                 <div className="bg-white border border-gray-200 rounded-xl p-1 flex gap-1 shadow-sm">
                   <button
                     onClick={() => setAdminTab('active')}
@@ -748,7 +788,38 @@ export default function App() {
               )}
 
               <div>
-                {adminTab === 'revenue' ? (
+                {adminTab === 'menu' ? (
+                  <MenuManagement
+                    menuItems={menuItems}
+                    onAddItem={async (item) => {
+                      try {
+                        await saveMenuItem(item);
+                        showToast('Đã thêm món mới!', 'success');
+                      } catch (error) {
+                        console.error('Error adding menu item:', error);
+                        showToast('Lỗi khi thêm món!', 'error');
+                      }
+                    }}
+                    onUpdateItem={async (item) => {
+                      try {
+                        await updateMenuItem(item);
+                        showToast('Đã cập nhật món!', 'success');
+                      } catch (error) {
+                        console.error('Error updating menu item:', error);
+                        showToast('Lỗi khi cập nhật!', 'error');
+                      }
+                    }}
+                    onDeleteItem={async (itemId) => {
+                      try {
+                        await deleteMenuItem(itemId);
+                        showToast('Đã xóa món!', 'success');
+                      } catch (error) {
+                        console.error('Error deleting menu item:', error);
+                        showToast('Lỗi khi xóa món!', 'error');
+                      }
+                    }}
+                  />
+                ) : adminTab === 'revenue' ? (
                   <div className="space-y-4">
                     {(() => {
                       const stats = getRevenueStats();
@@ -1094,7 +1165,7 @@ export default function App() {
                                     <Plus size={12} /> Thêm món mới
                                   </p>
                                   <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                                    {MENU_ITEMS.map(menuItem => (
+                                    {menuItems.map(menuItem => (
                                       <button
                                         key={menuItem.id}
                                         onClick={() => addItemToOrder(order.id, menuItem)}
@@ -1569,16 +1640,33 @@ export default function App() {
         <button
           onClick={() => {
             setView('admin');
-            if (adminTab === 'revenue') setAdminTab('active');
+            if (adminTab === 'revenue' || adminTab === 'menu') setAdminTab('active');
           }}
-          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' && adminTab !== 'revenue' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
             }`}
         >
-          {view === 'admin' && adminTab !== 'revenue' && (
+          {view === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' && (
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
           )}
-          <ClipboardList size={24} strokeWidth={view === 'admin' && adminTab !== 'revenue' ? 2.5 : 2} />
-          <span className="text-xs font-bold">Quản lý</span>
+          <ClipboardList size={24} strokeWidth={view === 'admin' && adminTab !== 'revenue' && adminTab !== 'menu' ? 2.5 : 2} />
+          <span className="text-xs font-bold">Đơn hàng</span>
+        </button>
+
+        <div className="w-px h-8 bg-gray-200"></div>
+
+        <button
+          onClick={() => {
+            setView('admin');
+            setAdminTab('menu');
+          }}
+          className={`relative flex flex-col items-center gap-1.5 transition-all duration-300 ${view === 'admin' && adminTab === 'menu' ? 'text-indigo-700' : 'text-gray-400 hover:text-gray-600'
+            }`}
+        >
+          {view === 'admin' && adminTab === 'menu' && (
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-indigo-500 rounded-full"></div>
+          )}
+          <UtensilsCrossed size={24} strokeWidth={view === 'admin' && adminTab === 'menu' ? 2.5 : 2} />
+          <span className="text-xs font-bold">Menu</span>
         </button>
 
         <div className="w-px h-8 bg-gray-200"></div>

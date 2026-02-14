@@ -92,19 +92,19 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({
               placeholder="Tên món"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="col-span-2 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              className="col-span-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             <input
               type="number"
-              placeholder="Giá"
+              placeholder="Giá (đ)"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              className="px-4 py-2 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value as Category })}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              className="px-4 py-2 border border-gray-200 rounded-lg text-gray-900 bg-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             >
               {Object.values(Category).map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -137,9 +137,8 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({
               {(items as MenuItem[]).map(item => (
                 <div
                   key={item.id}
-                  className={`bg-white border rounded-lg p-3 flex items-center justify-between ${
-                    editingId === item.id ? 'border-indigo-400 ring-2 ring-indigo-100' : 'border-gray-200'
-                  }`}
+                  className={`bg-white border rounded-lg p-3 flex items-center justify-between ${editingId === item.id ? 'border-indigo-400 ring-2 ring-indigo-100' : 'border-gray-200'
+                    }`}
                 >
                   <div>
                     <p className="font-semibold text-gray-900">{item.name}</p>
